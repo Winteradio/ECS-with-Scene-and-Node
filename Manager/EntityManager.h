@@ -1,7 +1,7 @@
 #ifndef __ENTITYMANAGER_H__
 #define __ENTITYMANAGER_H__
 
-#include <MemoryManager.h>
+#include <MemoryProject/MemoryManager.h>
 #include "IEntity.h"
 
 class EntityManager

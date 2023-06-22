@@ -79,6 +79,7 @@ MESSAGE( STATUS "Set Option" )
 OPTION( BUILD_STATIC_LIBRARY "Set option for the library which is static or dynamic" OFF )
 OPTION( INSTALL_DEMO_FILE "Install demofile for memorymanager" OFF )
 ## Set Option for install lib, header files' path
+SET( PREFIX_DIR ${MAIN_DIR}/build/Prefix CACHE PATH "Prefix Path" )
 SET( INCLUDE_DIR ${MAIN_DIR}/build/include CACHE PATH "Header files Path" )
 SET( ARC_DIR ${MAIN_DIR}/build/arc CACHE PATH "Archieve files Path" )
 SET( LIB_DIR ${MAIN_DIR}/build/lib CACHE PATH "Library files Path" )
@@ -109,7 +110,7 @@ ELSE ()
 ENDIF()
 
 FOREACH( FOLDER ${FOLDER_DIR} )
-    FILE( COPY ${FOLDER}/ DESTINATION ${INCLUDE_DIR}
+    FILE( COPY ${FOLDER}/ DESTINATION ${INCLUDE_DIR}/${PROJECT_NAME}
         FILES_MATCHING PATTERN "*.h" )
 ENDFOREACH()
 

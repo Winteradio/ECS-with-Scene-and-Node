@@ -1,7 +1,7 @@
 #ifndef __SYSTEMMANAGER_H__
 #define __SYSTEMNANAGER_H__
 
-#include <MemoryManager.h>
+#include <MemoryProject/MemoryManager.h>
 #include "ISystem.h"
 
 #include <memory>

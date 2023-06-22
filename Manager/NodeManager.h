@@ -1,7 +1,7 @@
 #ifndef __NODEMANAGER_H__
 #define __NODEMANAGER_H__
 
-#include <MemoryManager.h>
+#include <MemoryProject/MemoryManager.h>
 #include "INode.h"
 
 class NodeManager

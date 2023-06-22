@@ -1,7 +1,7 @@
 #ifndef __COMPONENTMANAGER_H__
 #define __COMPONENTMANAGER_H__
 
-#include <MemoryManager.h>
+#include <MemoryProject/MemoryManager.h>
 #include "IComponent.h"
 
 class Core;

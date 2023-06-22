@@ -1,7 +1,7 @@
 #ifndef __SCENEMANAGER_H__
 #define __SCENEMANAGER_H__
 
-#include <MemoryManager.h>
+#include <MemoryProject/MemoryManager.h>
 #include "IScene.h"
 
 class SceneManager
