@@ -1,4 +1,4 @@
-#include "Manager.h"
+#include <ECSProject/Manager.h>
 #include <LogProject/Log.h>
 #include <iostream>
 
@@ -13,6 +13,12 @@ int main()
 {
     Log::Info(" Linux ");
 #endif
+
+    SceneManager::GetHandle().Init();
+    SystemManager::GetHandle().Init();
+    EntityManager::GetHandle().Init();
+    NodeManager::GetHandle().Init();
+    ComponentManager::GetHandle().Init();
 
     Log::Print();
     

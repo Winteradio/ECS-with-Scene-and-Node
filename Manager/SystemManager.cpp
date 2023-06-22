@@ -12,27 +12,12 @@ SystemManager::~SystemManager()
 
 void SystemManager::Init()
 {
-
+    Log::Info(" Initialize System Manager ");
 }
 
 void SystemManager::Destroy()
 {
-    
-}
-
-void SystemManager::SetDependency( ISystem*& Main, ISystem*& Dependency )
-{
-
-}
-
-void SystemManager::DeleteDependency( ISystem*& Main, ISystem*& Dependency )
-{
-
-}
-
-bool SystemManager::Sort( MyUUID SceneID )
-{
-    return true;
+    Log::Info(" Destroy System Manager ");
 }
 
 SystemManager& SystemManager::GetHandle() { return m_SystemManager; }
