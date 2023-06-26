@@ -1,10 +1,13 @@
 #ifndef __ICOMPONENT_H__
 #define __ICOMPONENT_H__
 
-class IComponent
+#include "IObject.h"
+
+class IComponent : public IObject
 {
     public :
-        IComponent(){};
+        IComponent() {};
+        IComponent( MyUUID ID ) : IObject( ID ) {};
         virtual ~IComponent(){};
 };
 

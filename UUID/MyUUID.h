@@ -1,11 +1,9 @@
 #ifndef __MYUUID_H__
 #define __MYUUID_H__
 
-#include <string>
-#include <Rpc.h>
-#include "LogProject/Log.h"
-#include <set>
-#include <map>
+#include "Utils.h"
+
+#include <LogProject/Log.h>
 
 class MyUUID
 {
@@ -14,6 +12,7 @@ class MyUUID
 		MyUUID( std::string ID );
 		MyUUID( const MyUUID& Other );
 		bool operator == ( const MyUUID& Other ) const;
+		bool operator < (const MyUUID& Other) const;
 		MyUUID& operator = ( const std::string& ID );
 		~MyUUID();
 
@@ -42,9 +41,11 @@ class MyUUIDCompare
 		}
 };
 
-using IDSet = std::set< MyUUID, MyUUIDCompare >;
-
 template< typename T >
-using IDMap = std::map< MyUUID, T, MyUUIDCompare >;
+using MyUUIDMap = std::map< MyUUID, T >;
+
+using MyUUIDSet = std::set< MyUUID >;
+using MyUUIDQueue = std::queue< MyUUID >;
+using MyUUIDVector = std::vector< MyUUID >;
 
 #endif // __MYUUID_H__

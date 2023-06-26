@@ -14,5 +14,6 @@ void ComponentManager::Destroy()
     Log::Info(" Destroy Component Manager ");
 }
 
+ComponentManager::TypepIComponentMap& ComponentManager::GetData() { return m_Data; }
 ComponentManager& ComponentManager::GetHandle() { return m_ComponentManager; }
 ComponentManager ComponentManager::m_ComponentManager;

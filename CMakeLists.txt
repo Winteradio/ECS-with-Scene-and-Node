@@ -36,6 +36,7 @@ MESSAGE( STATUS "Set Source File")
 SET( MAIN_DIR ${CMAKE_SOURCE_DIR} )
 SET( INTERFACE_DIR ${MAIN_DIR}/Interface )
 SET( MANAGER_DIR ${MAIN_DIR}/Manager )
+SET( UTILS_DIR ${MAIN_DIR}/Utils )
 SET( UUID_DIR ${MAIN_DIR}/UUID )
 SET( DEMOFILE_DIR ${MAIN_DIR}/demofile )
 
@@ -46,10 +47,10 @@ SET( FOLDER_DIR )
 LIST( APPEND SOURCE_DIR
 
     ${INTERFACE_DIR}/IComponent.h
-    ${INTERFACE_DIR}/IEntity.h
     ${INTERFACE_DIR}/INode.h
-    ${INTERFACE_DIR}/IScene.h
     ${INTERFACE_DIR}/ISystem.h
+    ${INTERFACE_DIR}/Entity.h ${INTERFACE_DIR}/Entity.cpp
+    ${INTERFACE_DIR}/Scene.h ${INTERFACE_DIR}/Scene.cpp
 
     ${MANAGER_DIR}/ComponentManager.h ${MANAGER_DIR}/ComponentManager.cpp
     ${MANAGER_DIR}/EntityManager.h ${MANAGER_DIR}/EntityManager.cpp
@@ -57,7 +58,10 @@ LIST( APPEND SOURCE_DIR
     ${MANAGER_DIR}/SceneManager.h ${MANAGER_DIR}/SceneManager.cpp
     ${MANAGER_DIR}/SystemManager.h ${MANAGER_DIR}/SystemManager.cpp
 
+    ${UTILS_DIR}/Utils.h
+
     ${UUID_DIR}/MyUUID.h ${UUID_DIR}/MyUUID.cpp
+
     )
 
 ## Header Files
@@ -65,6 +69,7 @@ LIST( APPEND FOLDER_DIR
 
     ${INTERFACE_DIR}
     ${MANAGER_DIR}
+    ${UTILS_DIR}
     ${UUID_DIR}
 )
 

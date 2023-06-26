@@ -25,6 +25,15 @@ ENDIF()
 LIST(APPEND SRCS
     ## Demo file
     ${DEMOFILE_DIR}/main.cpp
+    ${DEMOFILE_DIR}/SystemList.h
+    ${DEMOFILE_DIR}/ComponentList.h
+    ${DEMOFILE_DIR}/NodeList.h
+)
+
+## Header Files
+LIST(APPEND INCS 
+    ##Demo file
+    ${DEMOFILE_DIR}
 )
 
 MESSAGE(STATUS "Setting Done ")
@@ -105,7 +114,7 @@ SET( DEMO_ARC_DIR ${DEMOFILE_DIR}/build/arc )
 EXTERNALPROJECT_ADD(
 	ECSProject_demo
 	GIT_REPOSITORY GIT_REPOSITORY https://github.com/Winteradio/ECS-with-Scene-and-Node.git
-	GIT_TAG "v1.0.1"
+	GIT_TAG "v1.0.3"
 
 	PREFIX ${DEMO_PREFIX_DIR}/ECSProject
 
@@ -134,7 +143,7 @@ MESSAGE( STATUS "Downloading Done" )
 # ------ Link LogProject on Target  ------------- #
 MESSAGE(STATUS "Set Options for Target Files")
 
-TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC ${DEP_INCLUDE})
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC ${DEP_INCLUDE} ${INCS})
 TARGET_LINK_DIRECTORIES(${PROJECT_NAME} PUBLIC ${DEMO_LIB_DIR})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${DEP_LIBS})
 ADD_DEPENDENCIES(${PROJECT_NAME} ${DEP_LIST})

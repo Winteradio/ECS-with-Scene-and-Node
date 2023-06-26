@@ -18,6 +18,11 @@ bool MyUUID::operator == ( const MyUUID& Other ) const
 	return m_ID == Other.m_ID;
 }
 
+bool MyUUID::operator < ( const MyUUID& Other ) const
+{
+	return m_ID < Other.m_ID;
+}
+
 MyUUID& MyUUID::operator = ( const std::string& ID )
 {
 	m_ID = ID;
