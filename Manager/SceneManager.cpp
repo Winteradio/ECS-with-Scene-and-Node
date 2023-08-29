@@ -10,62 +10,76 @@ void SceneManager::Init()
 
 void SceneManager::Destroy()
 {
+    m_SceneMPtrUnMap.clear();
+    m_SceneIndexSet.clear();
+    
     Log::Info(" Destroy Scene Manager ");
 }
 
-Scene* SceneManager::Create()
+MemoryPtr<Scene> SceneManager::Create()
 {
     return Create( "Default" );
 }
 
-Scene* SceneManager::Create( std::string Name )
+MemoryPtr<Scene> SceneManager::Create( std::string Name )
 {
-    int Index = static_cast<int>( GetCount() ); 
-    m_Data[ Index ] = new Scene( Index, Name );
+    int Index = static_cast<int>( GetCount() );
 
-    return m_Data[ Index ];
+    bool Check = HasScene( Index );
+
+    if ( Check )
+    {
+        throw Except(" SceneManager | %s | %s | The index %d was already existed ", __FUNCTION__, typeid( Scene ).name(), Index );
+    }
+
+    m_SceneIndexSet.insert( Index );
+    m_SceneMPtrUnMap[ Index ] = MemoryManager::GetHandle().Create<Scene>( Index, Name );
+    
+    return GetScene( Index );
 }
 
 void SceneManager::Remove( int Index )
 {
     bool Check = HasScene( Index );
+
     if ( Check )
     {
-        delete GetScene( Index );
+        MemoryManager::GetHandle().Delete<Scene>( GetScene( Index ) );
 
-        auto ITR = m_Data.find( Index );
-        m_Data.erase( ITR );
+        {
+            auto ITR = m_SceneIndexSet.find( Index );
+            m_SceneIndexSet.erase( ITR );
+        }
+
+        {
+            auto ITR = m_SceneMPtrUnMap.find( Index );
+            m_SceneMPtrUnMap.erase( ITR );
+        }
     }
 }
 
 bool SceneManager::HasScene( int Index )
 {
-    if ( Index < static_cast<int>( GetCount() ) )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    auto ITR = m_SceneIndexSet.find( Index );
+
+    if ( ITR != m_SceneIndexSet.end() ) return true;
+    else return false;
 }
 
-Scene* SceneManager::GetScene( int Index ) 
+MemoryPtr<Scene> SceneManager::GetScene( int Index ) 
 { 
     bool Check = HasScene( Index );
-    if ( Check )
+
+    if ( !Check ) 
     {
-        return m_Data[ Index ];
+        throw Except(" SceneManager | %s | %s | The index was not registerd ", __FUNCTION__, typeid( Scene ).name() );
     }
-    else
-    {
-        Log::Warn(" There is no Scene for Index %d ", Index );
-        return nullptr;
-    }
+
+    return m_SceneMPtrUnMap[ Index ];
 }
 
-SceneManager::pSceneMap& SceneManager::GetData() { return m_Data; }
-size_t SceneManager::GetCount() { return m_Data.size(); }
-
+SceneManager::IndexSet& SceneManager::GetIndexData() { return m_SceneIndexSet; }
+size_t SceneManager::GetCount() { return m_SceneMPtrUnMap.size(); }
 SceneManager& SceneManager::GetHandle() { return m_SceneManager; }
+
 SceneManager SceneManager::m_SceneManager;

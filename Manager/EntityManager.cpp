@@ -6,39 +6,45 @@ EntityManager::~EntityManager() {}
 
 void EntityManager::Init()
 {
-    Log::Info(" Init - Entity Manager ");
+    Log::Info(" Initialize Entity Manager ");
 }
 
 void EntityManager::Destroy()
 {
-    m_Data.clear();
+    m_EntityMPtrUnMap.clear();
+    m_EntityIDUnSet.clear();
+
+    Log::Info(" Destroy Entity Manager ");
 }
 
-Entity* EntityManager::Create()
+MemoryPtr<Entity> EntityManager::Create()
 {
     MyUUID ID;
-    ID.Init();
     return Create( ID, "Default" );
 }
 
-Entity* EntityManager::Create( std::string Name )
+MemoryPtr<Entity> EntityManager::Create( std::string Name )
 {
     MyUUID ID;
-    ID.Init();
     return Create( ID, Name );
 }
 
-Entity* EntityManager::Create( MyUUID ID )
+MemoryPtr<Entity> EntityManager::Create( MyUUID ID )
 {
     return Create( ID, "Default" );
 }
 
-Entity* EntityManager::Create( MyUUID ID, std::string Name )
+MemoryPtr<Entity> EntityManager::Create( MyUUID ID, std::string Name )
 {
-    Entity* Object = MemoryManager::GetHandle().Allocate<Entity>( ID, Name );
+    bool Check = HasEntity( ID );
+    if ( Check )
+    {
+        throw Except( " EntityManager | %s | The Entity ID %s is already existed ", __FUNCTION__, ID.GetString().c_str() );
+    }
+    m_EntityIDUnSet.insert( ID );
+    m_EntityMPtrUnMap[ ID ] = MemoryManager::GetHandle().Create<Entity>( ID, Name );
+    
     Log::Info(" Entity Info ID : %s / Name : %s ", ID.GetString().c_str() , Name.c_str() );
-
-    m_Data[ ID ] = Object;
 
     return GetEntity( ID );
 }
@@ -48,34 +54,41 @@ void EntityManager::Remove( MyUUID ID )
     bool Check = HasEntity( ID );
     if ( Check )
     {
-        auto EntityITR = m_Data.find( ID );
-        m_Data.erase( EntityITR );
+        MemoryManager::GetHandle().Delete<Entity>( GetEntity( ID ) );
+
+        {
+            auto ITR = m_EntityMPtrUnMap.find( ID );
+            m_EntityMPtrUnMap.erase( ITR );
+        }
+
+        {
+            auto ITR = m_EntityIDUnSet.find( ID );
+            m_EntityIDUnSet.erase( ITR );
+        }
     }
 
 }
 
 bool EntityManager::HasEntity( MyUUID ID )
 {
-    if ( m_Data.find( ID ) != m_Data.end() ) return true;
+    auto ITR = m_EntityIDUnSet.find( ID );
+    if ( ITR != m_EntityIDUnSet.end() ) return true;
     else return false;
 }
 
-Entity* EntityManager::GetEntity( MyUUID ID )
+MemoryPtr<Entity> EntityManager::GetEntity( MyUUID ID )
 {
     bool Check = HasEntity( ID );
-    if ( Check )
+
+    if ( !Check )
     {
-        return m_Data[ ID ];
+        throw Except( " EntityManager | %s | There is no Entity for %s ", __FUNCTION__, ID.GetString().c_str() );
     }
-    else
-    {
-        Log::Warn(" There is no Entity for %s ", ID.GetString().c_str() );
-        return nullptr;
-    }
+
+    return m_EntityMPtrUnMap[ ID ];
 }
 
-EntityManager::pEntityMap& EntityManager::GetData() { return m_Data; }
-
+MyUUIDUnSet& EntityManager::GetIDData() { return m_EntityIDUnSet; }
 EntityManager& EntityManager::GetHandle() { return m_EntityManager; }
 
 EntityManager EntityManager::m_EntityManager;

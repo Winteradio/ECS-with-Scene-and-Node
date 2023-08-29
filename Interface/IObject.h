@@ -12,7 +12,8 @@ class IObject
 
     public :
         void SetID( MyUUID ID ) { m_ID = ID; }
-        MyUUID& GetID() { return m_ID;}
+        MyUUID GetID() { return m_ID; }
+        MyUUID GetID() const { return m_ID; }
 
     protected :
         MyUUID m_ID;

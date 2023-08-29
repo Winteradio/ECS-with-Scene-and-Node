@@ -1,9 +1,10 @@
 #ifndef __SYSTEM_H__
 #define __SYSTEM_H__
 
-#include "ISystem.h"
+#include <ECSProject/ISystem.h>
+#include <ECSProject/NodeManager.h>
+
 #include "NodeList.h"
-#include "NodeManager.h"
 
 class RenderSystem : public ISystem
 {
@@ -13,7 +14,7 @@ class RenderSystem : public ISystem
         virtual ~RenderSystem() {};
 
     public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
         {
             for ( auto ID : EntityID )
             {
@@ -41,7 +42,7 @@ class PhysicsSystem : public ISystem
         virtual ~PhysicsSystem() {};
 
     public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
         {
             Log::Info(" PhysicsSystem Update ");
         }
@@ -60,7 +61,7 @@ class MoveSystem : public ISystem
         virtual ~MoveSystem() {};
 
     public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
         {
             Log::Info(" MoveSystem Update ");
         }
@@ -79,7 +80,7 @@ class CollisionSystem : public ISystem
         virtual ~CollisionSystem() {};
 
     public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
         {
             Log::Info(" CollisionSystem Update ");
         }
@@ -98,7 +99,7 @@ class CameraSystem : public ISystem
         virtual ~CameraSystem() {};
 
     public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
         {
             Log::Info(" CameraSystem Update ");
         }

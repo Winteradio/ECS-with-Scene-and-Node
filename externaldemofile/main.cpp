@@ -1,8 +1,7 @@
-#include "Manager.h"
-#include "MyUUID.h"
-
 #include <LogProject/Log.h>
 #include <MemoryProject/MemoryManager.h>
+#include <ECSProject/Manager.h>
+#include <ECSProject/MyUUID.h>
 #include <iostream>
 #include <map>
 #include <string>

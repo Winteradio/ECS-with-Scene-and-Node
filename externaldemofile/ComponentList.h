@@ -1,7 +1,7 @@
 #ifndef __COMPONENT_H__
 #define __COMPONENT_H__
 
-#include "IComponent.h"
+#include <ECSProject/IComponent.h>
 
 class MeshComponent: public IComponent
 {

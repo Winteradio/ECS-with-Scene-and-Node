@@ -45,7 +45,7 @@ MESSAGE(STATUS "Memory Project - Linking ...")
 EXTERNALPROJECT_ADD(
     MemoryProject
     GIT_REPOSITORY GIT_REPOSITORY https://github.com/Winteradio/MemoryPool.git
-    GIT_TAG "v3.0.5"
+    GIT_TAG "v4.1.3"
 
     PREFIX ${PREFIX_DIR}/MemoryProject
 

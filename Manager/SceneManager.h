@@ -4,10 +4,12 @@
 #include "Scene.h"
 
 #include <LogProject/Log.h>
+#include <MemoryProject/MemoryManager.h>
 
 class SceneManager
 {
-    using pSceneMap = std::map< int, Scene* >;
+    using IndexSet = std::set< int >;
+    using IndexSceneMPtrUnMap = std::unordered_map< int, MemoryPtr<Scene> >;
 
     private :
         SceneManager();
@@ -20,20 +22,23 @@ class SceneManager
         void Destroy();
 
     public :
-        Scene* Create();
-        Scene* Create( std::string Name );
+        MemoryPtr<Scene> Create();
+        MemoryPtr<Scene> Create( std::string Name );
 
         void Remove( int Index );
 
-        bool HasScene( int Index );
-        Scene* GetScene( int Index );
+        MemoryPtr<Scene> GetScene( int Index );
 
-        pSceneMap& GetData();
+        IndexSet& GetIndexData();
         size_t GetCount();
 
     private :
+        bool HasScene( int Index );
+
+    private :
         static SceneManager m_SceneManager;
-        pSceneMap m_Data;
+        IndexSceneMPtrUnMap m_SceneMPtrUnMap;
+        IndexSet m_SceneIndexSet;
 };
 
 #endif // __SCENEMANAGER_H__

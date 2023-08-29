@@ -1,12 +1,15 @@
 #include "MyUUID.h"
 
-MyUUID::MyUUID()
-{
-}
+MyUUID::MyUUID() { Init(); }
 
 MyUUID::MyUUID( std::string ID )
 {
 	m_ID = ID;
+}
+
+MyUUID::MyUUID( const MyUUID& Other )
+{
+	m_ID = Other.m_ID;
 }
 
 MyUUID::~MyUUID()
@@ -16,6 +19,11 @@ MyUUID::~MyUUID()
 bool MyUUID::operator == ( const MyUUID& Other ) const
 {
 	return m_ID == Other.m_ID;
+}
+
+bool MyUUID::operator != ( const MyUUID& Other ) const
+{
+	return m_ID != Other.m_ID;
 }
 
 bool MyUUID::operator < ( const MyUUID& Other ) const
@@ -29,11 +37,6 @@ MyUUID& MyUUID::operator = ( const std::string& ID )
 	return *this;
 }
 
-MyUUID::MyUUID( const MyUUID& Other )
-{
-	m_ID = Other.m_ID;
-}
-
 void MyUUID::Init()
 {
 	UUID Id;
@@ -43,8 +46,6 @@ void MyUUID::Init()
 	UuidToStringA( &Id, (RPC_CSTR*)&UuidChar );
 
 	m_ID = std::string( UuidChar );
-
-	Log::Info(" Create UUID - %s", m_ID.c_str() );
 }
 
 bool MyUUID::Empty()
@@ -54,3 +55,4 @@ bool MyUUID::Empty()
 }
 
 std::string& MyUUID::GetString() { return m_ID; }
+std::string MyUUID::GetString() const { return m_ID; }

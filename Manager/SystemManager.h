@@ -4,15 +4,12 @@
 #include "ISystem.h"
 
 #include <LogProject/Log.h>
-#include <MemoryProject/MemoryManager.h>
 
 class SystemManager
 {
-    using pISystemMap = MyUUIDMap< ISystem* >;
-    using DependencyIDSetMap = std::map< MyUUID, MyUUIDSet >;
-    using DependencyIndegreeMap = std::map< MyUUID, int >;
-
-    using SystemSequence = std::queue< ISystem* >;
+    using MyUUIDISystemUnMap = MyUUIDUnMap< ISystem* >;
+    using DependencyIDUnSetUnMap = MyUUIDUnMap< MyUUIDUnSet >;
+    using DependencyIndegreeUnMap = MyUUIDUnMap< int >;
 
     private :
         SystemManager();
@@ -29,7 +26,6 @@ class SystemManager
         ISystem* Create()
         {
             MyUUID ID;
-            ID.Init();
 
             return Create<T>( ID );
         }
@@ -48,8 +44,8 @@ class SystemManager
             {
                 T* System = new T( ID );
 
-                m_Data[ ID ] = System;
-                m_DependencyIDSetMap[ ID ] = MyUUIDSet();
+                m_ISystemUnMap[ ID ] = System;
+                m_DependencyID[ ID ] = MyUUIDUnSet();
 
                 return System;
             }
@@ -63,19 +59,20 @@ class SystemManager
         void SetDependency( MyUUID MainID, MyUUID DependencyID );
         void DeleteDependency( MyUUID MainID, MyUUID DependencyID );
 
-        void UpdateSequence( MyUUIDSet& SceneSystems, SystemSequence& SceneSequence );
+        void UpdateSequence( MyUUIDUnSet& SceneSystems, ISystemQueue& SceneSequence );
 
     private :
-        bool TopologySort( MyUUIDSet& SceneSystems, SystemSequence& SceneSequence = SystemSequence() );
-        DependencyIndegreeMap CalculateIndegree( DependencyIDSetMap& DepIDSetMap );
+        bool TopologySort( MyUUIDUnSet& SceneSystems, ISystemQueue& SceneSequence = ISystemQueue() );
 
-        DependencyIDSetMap CalculateDependency( MyUUIDSet& SceneSystems );
-        void RecursiveCheckDependency( MyUUID MainID, MyUUID SystemID, MyUUIDSet& SceneSystems, DependencyIDSetMap& DepIDSetMap );
+        DependencyIndegreeUnMap CalculateIndegree( DependencyIDUnSetUnMap& DepIDSetMap );
+        DependencyIDUnSetUnMap CalculateDependency( MyUUIDUnSet& SceneSystems );
+        
+        void RecursiveCheckDependency( MyUUID MainID, MyUUID SystemID, MyUUIDUnSet& SceneSystems, DependencyIDUnSetUnMap& DepIDSetMap );
 
     private :
         static SystemManager m_SystemManager;
-        pISystemMap m_Data;
-        DependencyIDSetMap m_DependencyIDSetMap;
+        MyUUIDISystemUnMap m_ISystemUnMap;
+        DependencyIDUnSetUnMap m_DependencyID;
 };
 
 #endif // __SYSTEMMANAGER_H__

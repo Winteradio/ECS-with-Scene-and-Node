@@ -19,12 +19,13 @@ ISystem* SystemManager::GetSystem( MyUUID ID )
 
     if ( !Check ) return nullptr;
 
-    return m_Data[ ID ];
+    return m_ISystemUnMap[ ID ];
 }
 
 bool SystemManager::HasSystem( MyUUID ID )
 {
-    if ( m_Data.find( ID ) != m_Data.end() ) return true;
+    auto ITR = m_ISystemUnMap.find( ID );
+    if ( ITR != m_ISystemUnMap.end() ) return true;
     else return false;
 }
 
@@ -33,19 +34,23 @@ void SystemManager::Remove( MyUUID ID )
     bool Check = HasSystem( ID );
     if ( Check )
     {
-        auto DataITR = m_Data.find( ID );
-        m_Data.erase( DataITR );
-
-        auto DepIDSetMapITR = m_DependencyIDSetMap.find( ID );
-        m_DependencyIDSetMap.erase( DepIDSetMapITR );
-
-        for ( auto& [ SystemID, DepIDSet ] : m_DependencyIDSetMap )
         {
-            auto DepIDITR = DepIDSet.find( ID );
+            auto ITR = m_ISystemUnMap.find( ID );
+            m_ISystemUnMap.erase( ITR );
+        }
 
-            if ( DepIDITR != DepIDSet.end() )
+        {
+            auto ITR = m_DependencyID.find( ID );
+            m_DependencyID.erase( ITR );
+        }
+
+        for ( auto& [ SystemID, DepIDSet ] : m_DependencyID )
+        {
+            auto ITR = DepIDSet.find( ID );
+
+            if ( ITR != DepIDSet.end() )
             {
-                DepIDSet.erase( DepIDITR );
+                DepIDSet.erase( ITR );
             }
         }
     }
@@ -55,22 +60,20 @@ void SystemManager::SetDependency( MyUUID MainID, MyUUID DependencyID )
 {
     bool Check = HasSystem( MainID ) && HasSystem( DependencyID );
 
-    if ( !Check ) return ;
+    if ( !Check ) return;
 
-    m_DependencyIDSetMap[ MainID ].insert( DependencyID );
+    m_DependencyID[ MainID ].insert( DependencyID );
 
-    MyUUIDSet TestIDSet;
-    for ( auto [ ID, System ] : m_Data )
+    MyUUIDUnSet TestIDSet;
+
+    for ( auto [ ID, System ] : m_ISystemUnMap )
     {
         TestIDSet.insert( ID );
     }
 
     Check = TopologySort( TestIDSet );
 
-    if ( !Check )
-    {
-        DeleteDependency( MainID, DependencyID );
-    }
+    if ( !Check ) { DeleteDependency( MainID, DependencyID ); }
 }
 
 void SystemManager::DeleteDependency( MyUUID MainID, MyUUID DependencyID )
@@ -79,9 +82,9 @@ void SystemManager::DeleteDependency( MyUUID MainID, MyUUID DependencyID )
 
     if ( Check )
     {
-        auto ITR = m_DependencyIDSetMap[ MainID ].find( DependencyID );
+        auto ITR = m_DependencyID[ MainID ].find( DependencyID );
 
-        if ( ITR == m_DependencyIDSetMap[ MainID ].end() )
+        if ( ITR == m_DependencyID[ MainID ].end() )
         {
             Log::Warn( " %s System has not %s System ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependencyID) ).name() );
             return;
@@ -89,22 +92,22 @@ void SystemManager::DeleteDependency( MyUUID MainID, MyUUID DependencyID )
         else
         {
             Log::Info( " Erase Dependency %s for %s ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependencyID) ).name() );
-            m_DependencyIDSetMap[ MainID ].erase( ITR );
+            m_DependencyID[ MainID ].erase( ITR );
         }
     }
 }
 
-void SystemManager::UpdateSequence( MyUUIDSet& SceneSystems, SystemSequence& SceneSequence )
+void SystemManager::UpdateSequence( MyUUIDUnSet& SceneSystems, ISystemQueue& SystemSequence )
 {
-    TopologySort( SceneSystems, SceneSequence );
+    TopologySort( SceneSystems, SystemSequence );
 }
 
-bool SystemManager::TopologySort( MyUUIDSet& SceneSystems, SystemSequence& SceneSequence )
+bool SystemManager::TopologySort( MyUUIDUnSet& SceneSystems, ISystemQueue& SystemSequence )
 {
     MyUUIDQueue MainQueue, TempQueue;
 
-    DependencyIDSetMap DepIDSetMap = CalculateDependency( SceneSystems );
-    DependencyIndegreeMap DepIndegreeMap = CalculateIndegree( DepIDSetMap );
+    DependencyIDUnSetUnMap DepIDMap = CalculateDependency( SceneSystems );
+    DependencyIndegreeUnMap DepIndegreeMap = CalculateIndegree( DepIDMap );
 
     for ( auto& [ SystemID, Indegree ] : DepIndegreeMap )
     {
@@ -119,7 +122,7 @@ bool SystemManager::TopologySort( MyUUIDSet& SceneSystems, SystemSequence& Scene
     while( !TempQueue.empty() )
     {
         MyUUID& TempID = TempQueue.front();
-        for ( auto DependencyID : DepIDSetMap[ TempID ] )
+        for ( auto DependencyID : DepIDMap[ TempID ] )
         {
             DepIndegreeMap[ DependencyID ]--;
 
@@ -136,10 +139,10 @@ bool SystemManager::TopologySort( MyUUIDSet& SceneSystems, SystemSequence& Scene
 
     if ( MainQueue.size() == SceneSystems.size() )
     {
-        SceneSequence = SystemSequence();
+        SystemSequence = ISystemQueue();
         while( !MainQueue.empty() )
         {
-            SceneSequence.push( GetSystem( MainQueue.front() ) );
+            SystemSequence.push( GetSystem( MainQueue.front() ) );
             MainQueue.pop();
         }
         return true;
@@ -151,16 +154,16 @@ bool SystemManager::TopologySort( MyUUIDSet& SceneSystems, SystemSequence& Scene
     }
 }
 
-SystemManager::DependencyIndegreeMap SystemManager::CalculateIndegree( DependencyIDSetMap& DepIDSetMap )
+SystemManager::DependencyIndegreeUnMap SystemManager::CalculateIndegree( DependencyIDUnSetUnMap& DepIDMap )
 {
-    DependencyIndegreeMap DepIndegreeMap;
+    DependencyIndegreeUnMap DepIndegreeMap;
 
-    for ( auto [ SystemID, DependencyIDSet ] : DepIDSetMap )
+    for ( auto [ SystemID, DependencyIDSet ] : DepIDMap )
     {
         DepIndegreeMap[ SystemID ] = 0;
     }
 
-    for ( auto [ SystemID, DependencyIDSet ] : DepIDSetMap )
+    for ( auto [ SystemID, DependencyIDSet ] : DepIDMap )
     {
         for ( auto DependencyID : DependencyIDSet )
         {
@@ -171,9 +174,9 @@ SystemManager::DependencyIndegreeMap SystemManager::CalculateIndegree( Dependenc
     return DepIndegreeMap;
 }
 
-SystemManager::DependencyIDSetMap SystemManager::CalculateDependency( MyUUIDSet& SceneSystems )
+SystemManager::DependencyIDUnSetUnMap SystemManager::CalculateDependency( MyUUIDUnSet& SceneSystems )
 {
-    DependencyIDSetMap DepIDSetMap;
+    DependencyIDUnSetUnMap DepIDMap;
 
     for ( MyUUID SystemID : SceneSystems )
     {
@@ -188,31 +191,31 @@ SystemManager::DependencyIDSetMap SystemManager::CalculateDependency( MyUUIDSet&
             continue;
         }
 
-        DepIDSetMap[ SystemID ] = MyUUIDSet();
+        DepIDMap[ SystemID ] = MyUUIDUnSet();
     }
 
     for ( MyUUID SystemID : SceneSystems )
     {
-        for ( MyUUID DependencyID : m_DependencyIDSetMap[ SystemID ] )
+        for ( MyUUID DependencyID : m_DependencyID[ SystemID ] )
         {
-            RecursiveCheckDependency( SystemID, DependencyID, SceneSystems, DepIDSetMap );
+            RecursiveCheckDependency( SystemID, DependencyID, SceneSystems, DepIDMap );
         }
     }
 
-    return DepIDSetMap;
+    return DepIDMap;
 }
 
-void SystemManager::RecursiveCheckDependency( MyUUID MainID, MyUUID SystemID, MyUUIDSet& SceneSystems, DependencyIDSetMap& DepIDSetMap )
+void SystemManager::RecursiveCheckDependency( MyUUID MainID, MyUUID SystemID, MyUUIDUnSet& SceneSystems, DependencyIDUnSetUnMap& DepIDMap )
 {
     if ( SceneSystems.find( SystemID ) != SceneSystems.end() )
     {
-        DepIDSetMap[ MainID ].insert( SystemID );
+        DepIDMap[ MainID ].insert( SystemID );
         return;
     }
 
-    for ( MyUUID DependencyID : m_DependencyIDSetMap[ SystemID ] )
+    for ( MyUUID DependencyID : m_DependencyID[ SystemID ] )
     {
-        RecursiveCheckDependency( MainID, DependencyID, SceneSystems, DepIDSetMap );
+        RecursiveCheckDependency( MainID, DependencyID, SceneSystems, DepIDMap );
     }
 }
 

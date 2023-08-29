@@ -8,7 +8,7 @@
 
 class EntityManager
 {
-    using pEntityMap = MyUUIDMap< Entity* >;
+    using MyUUIDEntityMPtrUnMap = MyUUIDUnMap< MemoryPtr<Entity> >;
 
     private :
         EntityManager();
@@ -20,20 +20,24 @@ class EntityManager
         void Init();
         void Destroy();
 
-        Entity* Create();
-        Entity* Create( std::string Name );
-        Entity* Create( MyUUID ID );
-        Entity* Create( MyUUID ID, std::string Name );
+        MemoryPtr<Entity> Create();
+        MemoryPtr<Entity> Create( std::string Name );
+        MemoryPtr<Entity> Create( MyUUID ID );
+        MemoryPtr<Entity> Create( MyUUID ID, std::string Name );
         
         void Remove( MyUUID ID );
-        bool HasEntity( MyUUID ID );
+        
+        MemoryPtr<Entity> GetEntity( MyUUID ID );
 
-        Entity* GetEntity( MyUUID ID );
-        pEntityMap& GetData();
+        MyUUIDUnSet& GetIDData();
+
+    private :
+        bool HasEntity( MyUUID ID );
 
     private :
         static EntityManager m_EntityManager;
-        pEntityMap m_Data;
+        MyUUIDEntityMPtrUnMap m_EntityMPtrUnMap;
+        MyUUIDUnSet m_EntityIDUnSet;
 };
 
 #endif // __ENTITYMANAGER_H__

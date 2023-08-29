@@ -8,6 +8,8 @@
 #include <Rpc.h>
 #include <set>
 #include <typeindex>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 

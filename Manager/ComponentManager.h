@@ -8,8 +8,9 @@
 
 class ComponentManager
 {
-    using pIComponentMap = MyUUIDMap< IComponent* >;
-    using TypepIComponentMap = std::map< const std::type_info*, pIComponentMap >;
+    using MyUUIDIComponentMPtrUnMap = MyUUIDUnMap< MemoryPtr<IComponent> >;
+    using TypeMyUUIDUnSetUnMap = std::unordered_map< const std::type_info*, MyUUIDUnSet >;
+    using TypeUnSet = std::unordered_set< const std::type_info* >;
 
     private :
         ComponentManager();
@@ -21,20 +22,22 @@ class ComponentManager
         void Init();
         void Destroy();
 
-        TypepIComponentMap& GetData();
-
     public :
         template< typename T, typename... Args >
-        T* Create( Args&&... args )
+        MemoryPtr<T> Create( Args&&... args )
         {
-            bool Check = HasMap<T>();
+            bool Check = HasIDSet<T>();
+            if ( !Check ) CreateIDSet<T>();
+
+            MyUUID ID;
+            ID.Init();
             
-            if ( !Check ) CreateMap<T>();
+            MemoryPtr<T> ComponentMPtr = MemoryManager::GetHandle().Create<T>( std::forward<Args>(args)... );
 
-            T* Component = MemoryManager::GetHandle().Allocate<T>( std::forward<Args>(args)... );
-            GetMap<T>()[ Component->GetID() ] = Component;
+            GetIDData<T>().insert( ComponentMPtr->GetID() );
+            m_IComponentMPtrUnMap[ ComponentMPtr->GetID() ] = ComponentMPtr;
 
-            return Component;
+            return ComponentMPtr;
         }
 
         template< typename T >
@@ -44,79 +47,60 @@ class ComponentManager
 
             if ( Check )
             {
-                auto ITR = GetMap<T>().find( ID );
-                GetMap<T>().erase( ITR );
+                MemoryManager::GetHandle().Delete<T>( GetComponent( ID ) );
+                
+                auto ITR = GetIDData<T>().find( ID );
+                GetIDData<T>().erase( ITR );
             }
         }
 
         template< typename T >
-        T* GetComponent( MyUUID ID )
+        MemoryPtr<T> GetComponent( MyUUID ID )
         {
             bool Check = HasComponent<T>( ID );
-            if ( Check )
-            {
-                T* pComponent = dynamic_cast<T*>( GetMap<T>().[ ID ] );
 
-                if ( pComponent ) return pComponent;
-                else
-                {
-                    Log::Warn( " Invalid Component Type " );
-                }
-            }
-            else
+            if ( !Check )
             {
-                Log::Warn( " Component not found of %s ", ID.GetString().c_str() );
+                throw Except( " ComponentManager | %s | %s | There is no Component for %s ID ", __FUNCTION__, typeid( T ).name(), ID.GetString().c_str() );
             }
+
+            return m_IComponentMPtrUnMap[ ID ];
         }
 
         template< typename T >
         bool HasComponent( MyUUID ID )
         {
-            bool Check = HasMap<T>();
+            bool Check = HasIDSet<T>();
             if ( !Check ) return false;
 
-            auto ITR = GetMap<T>().find( ID );
-
-            if ( ITR != GetMap<T>().end() )
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            auto ITR = GetIDData<T>().find( ID );
+            if ( ITR != GetIDData<T>().end() ) return true;
+            else return false;
         }
 
         template< typename T >
-        bool HasMap()
-        {
-            if ( m_Data.find( &typeid( T ) ) != m_Data.end() ) 
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        MyUUIDUnSet& GetIDData() { return GetIDData( &typeid( T ) ); }
+
+    public :
+        TypeUnSet& GetTypeData();
+        MyUUIDUnSet& GetIDData( const std::type_info* Type );
+
+    private :
+        template< typename T >
+        bool HasIDSet() { return HasIDSet( &typeid( T ) ); }
 
         template< typename T >
-        void CreateMap()
-        {
-            m_Data[ &typeid( T ) ] = pIComponentMap();
+        void CreateIDSet() { CreateIDSet( &typeid( T ) ); }
 
-            m_Data[ &typeid( T ) ].clear();
-        }
-
-        template< typename T >
-        pIComponentMap& GetMap()
-        {
-            return m_Data[ &typeid( T ) ];
-        }
+    private :
+        bool HasIDSet( const std::type_info* Type );
+        void CreateIDSet( const std::type_info* Type );
 
     private :
         static ComponentManager m_ComponentManager;
-        TypepIComponentMap m_Data;
+        MyUUIDIComponentMPtrUnMap m_IComponentMPtrUnMap;
+        TypeMyUUIDUnSetUnMap m_IComponentIDData;
+        TypeUnSet m_IComponentTypeData;
 };
 
 #endif // __COMPONENTMANAGER_H__

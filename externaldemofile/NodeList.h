@@ -1,7 +1,7 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
-#include "INode.h"
+#include <ECSProject/INode.h>
 #include "ComponentList.h"
 
 class RenderNode : public INode
