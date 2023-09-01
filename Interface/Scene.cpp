@@ -15,76 +15,56 @@ void Scene::Destroy()
     m_NodeIDData.clear();
     m_NodeTypeData.clear();
     m_SystemIDData.clear();
-
-    ClearSequence( m_MainSequence );
-    ClearSequence( m_DoneSequence );
 }
 
 void Scene::Update( float DeltaTime )
 {
-    bool Check;
-    while( !m_MainSequence.empty() )
+    for ( auto& SystemID : m_SystemSequence )
     {
-        ISystem* System = m_MainSequence.front();
-
+        MemoryPtr<ISystem>& System = SystemManager::GetHandle().GetSystem( SystemID );
         System->Update( DeltaTime, m_Index, GetNodeIDData( System->GetNodeType() ) );
-
-        m_MainSequence.pop();
-        m_DoneSequence.push( System );
-    }
-
-    while( !m_DoneSequence.empty() )
-    {
-        m_MainSequence.push( m_DoneSequence.front() );
-        m_DoneSequence.pop();
     }
 }
 
-void Scene::RegisterNode( const std::type_info* Type, MyUUID ID )
+void Scene::RegisterNode( const std::type_info* Type, MyUUID& ID )
 {
     bool Check = HasNode( Type, ID );
 
     if ( !Check ) m_NodeIDData[ Type ].insert( ID );
 }
 
-void Scene::RemoveNode( const std::type_info* Type, MyUUID ID )
+void Scene::RemoveNode( const std::type_info* Type, MyUUID& ID )
 {
     bool Check = HasNode( Type, ID );
 
     if ( Check )
     {
-        {
-            auto ITR = m_NodeIDData[ Type ].find( ID );
-            m_NodeIDData[ Type ].erase( ITR );
-        }
+        auto IDITR = m_NodeIDData[ Type ].find( ID );
+        if ( IDITR != m_NodeIDData[ Type ].end() ) m_NodeIDData[ Type ].erase( IDITR );
 
         if ( m_NodeIDData[ Type ].empty() ) 
         {
-            auto ITR = m_NodeTypeData.find( Type );
-            m_NodeTypeData.erase( ITR );
+            auto TypeITR = m_NodeTypeData.find( Type );
+            if ( TypeITR != m_NodeTypeData.end() ) m_NodeTypeData.erase( TypeITR );
         }
     }
 }
 
-bool Scene::HasNode( const std::type_info* Type, MyUUID ID )
+bool Scene::HasNode( const std::type_info* Type, MyUUID& ID )
 {
+    bool Check = HasNodeType( Type );
+    if ( !Check )
     {
-        auto ITR = m_NodeTypeData.find( Type );
-        if ( ITR == m_NodeTypeData.end() )
-        {
-            m_NodeTypeData.insert( Type );
-            m_NodeIDData[ Type ] = MyUUIDUnSet();
+        m_NodeTypeData.insert( Type );
+        m_NodeIDData[ Type ] = MyUUIDUnSet();
 
-            CheckSystemValidity( Type );
-            return false;
-        }
+        CheckSystemValidity( Type );
+        return false; 
     }
 
-    {
-        auto ITR = m_NodeIDData[ Type ].find( ID );
-        if ( ITR != m_NodeIDData[ Type ].end() ) return true;
-        else return false;
-    }
+    auto IDITR = m_NodeIDData[ Type ].find( ID );
+    if ( IDITR != m_NodeIDData[ Type ].end() ) return true;
+    else return false;
 }
 
 bool Scene::HasNodeType( const std::type_info* Type )
@@ -94,21 +74,21 @@ bool Scene::HasNodeType( const std::type_info* Type )
     else return false;
 }
 
-void Scene::RegisterSystem( MyUUID ID )
+void Scene::RegisterSystem( MyUUID& ID )
 {
-    ISystem* System = SystemManager::GetHandle().GetSystem( ID );
+    MemoryPtr<ISystem> System = SystemManager::GetHandle().GetSystem( ID );
 
     RegisterSystem( System->GetNodeType(), ID );
 }
 
-void Scene::RegisterSystem( const std::type_info* Type, MyUUID ID )
+void Scene::RegisterSystem( const std::type_info* Type, MyUUID& ID )
 {
     bool Check = HasSystem( ID );
 
     if ( !Check )
     {
-        auto ITR = m_PendingSystemIDData.find( Type );
-        if ( ITR == m_PendingSystemIDData.end() )
+        auto IDITR = m_PendingSystemIDData.find( Type );
+        if ( IDITR == m_PendingSystemIDData.end() )
         {
             m_PendingSystemIDData[ Type ] = MyUUIDUnSet();
         }
@@ -118,20 +98,20 @@ void Scene::RegisterSystem( const std::type_info* Type, MyUUID ID )
     }
 }
 
-void Scene::RemoveSystem( MyUUID ID )
+void Scene::RemoveSystem( MyUUID& ID )
 {
     bool Check = HasSystem( ID );
 
     if ( Check )
     {
-        auto ITR = m_SystemIDData.find( ID );
-        m_SystemIDData.erase( ITR );
+        auto MainIDITR = m_SystemIDData.find( ID );
+        m_SystemIDData.erase( MainIDITR );
 
         UpdateSequence();
     }
 }
 
-bool Scene::HasSystem( MyUUID ID )
+bool Scene::HasSystem( MyUUID& ID )
 {
     auto ITR = m_SystemIDData.find( ID );
 
@@ -152,31 +132,25 @@ MyUUIDUnSet& Scene::GetNodeIDData( const std::type_info* Type )
 
 void Scene::CheckSystemValidity( const std::type_info* Type )
 {
-    auto NodeITR = m_NodeTypeData.find( Type );
-    if ( NodeITR == m_NodeTypeData.end() ) return ;
+    bool Check = HasNodeType( Type );
+    if ( !Check ) return ;
 
-    auto SystemITR = m_PendingSystemIDData.find( Type );
-    if ( SystemITR == m_PendingSystemIDData.end() ) return;
+    auto ITR = m_PendingSystemIDData.find( Type );
+    if ( ITR == m_PendingSystemIDData.end() ) return;
 
-    for ( auto SystemID : m_PendingSystemIDData[ Type ] )
+    for ( auto ID : m_PendingSystemIDData[ Type ] )
     {
-        m_SystemIDData.insert( SystemID );
+        m_SystemIDData.insert( ID );
     }
 
-    m_PendingSystemIDData.erase( SystemITR );
+    m_PendingSystemIDData.erase( ITR );
 
     UpdateSequence();
 }
 
-void Scene::ClearSequence( ISystemQueue& Sequence )
-{
-    while( !Sequence.empty() ) { Sequence.pop(); }
-}
-
 void Scene::UpdateSequence()
 {
-    SystemManager::GetHandle().UpdateSequence( m_SystemIDData, m_MainSequence );
-    ClearSequence( m_DoneSequence );
+    m_SystemSequence = SystemManager::GetHandle().UpdateSequence( m_SystemIDData );
 }
 
 Scene::TypeUnSet& Scene::GetNodeTypeData() { return m_NodeTypeData; }

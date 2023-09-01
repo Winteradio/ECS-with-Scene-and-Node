@@ -135,7 +135,7 @@ SET( ARC_DIR ${MAIN_DIR}/build/arc )
 EXTERNALPROJECT_ADD(
 	MemoryProject_Demo
 	GIT_REPOSITORY GIT_REPOSITORY https://github.com/Winteradio/MemoryPool.git
-	GIT_TAG "v4.1.3"
+	GIT_TAG "v4.1.5"
 
 	PREFIX ${PREFIX_DIR}/MemoryProject
 

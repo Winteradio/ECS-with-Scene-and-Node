@@ -4,12 +4,14 @@
 #include "ISystem.h"
 
 #include <LogProject/Log.h>
+#include <MemoryProject/MemoryManager.h>
 
 class SystemManager
 {
-    using MyUUIDISystemUnMap = MyUUIDUnMap< ISystem* >;
+    using MyUUIDISystemMPtrUnMap = MyUUIDUnMap< MemoryPtr<ISystem> >;
     using DependencyIDUnSetUnMap = MyUUIDUnMap< MyUUIDUnSet >;
-    using DependencyIndegreeUnMap = MyUUIDUnMap< int >;
+    using DependentIndegreeUnMap = MyUUIDUnMap< int >;
+    using SystemIndexUnMap = MyUUIDUnMap< int >;
 
     private :
         SystemManager();
@@ -23,7 +25,7 @@ class SystemManager
 
     public :
         template< typename T >
-        ISystem* Create()
+        MemoryPtr<ISystem> Create()
         {
             MyUUID ID;
 
@@ -31,48 +33,38 @@ class SystemManager
         }
 
         template< typename T >
-        ISystem* Create( MyUUID ID )
+        MemoryPtr<ISystem> Create( MyUUID ID )
         {
             bool Check = HasSystem( ID );
-            
-            if ( Check )
-            {
-                Log::Warn( " Alreay the System is existed " );
-                return nullptr;
-            }
-            else
-            {
-                T* System = new T( ID );
+            if ( Check ) { throw Except( " SystemManager | %s | This System is already existed ", typeid( T ).name() ); }
+        
+            MemoryPtr<ISystem> System = MemoryManager::GetHandle().CreateOne<T>( ID );
 
-                m_ISystemUnMap[ ID ] = System;
-                m_DependencyID[ ID ] = MyUUIDUnSet();
+            m_ISystemMPtrData[ ID ] = System;
+            m_DependencyIDData[ ID ] = MyUUIDUnSet();
 
-                return System;
-            }
+            return System;
         }
 
     public :
-        ISystem* GetSystem( MyUUID ID );
-        bool HasSystem( MyUUID ID );
-        void Remove( MyUUID ID );
+        MemoryPtr<ISystem> GetSystem( MyUUID& ID );
+        bool HasSystem( MyUUID& ID );
+        void Remove( MyUUID& ID );
 
-        void SetDependency( MyUUID MainID, MyUUID DependencyID );
-        void DeleteDependency( MyUUID MainID, MyUUID DependencyID );
+        void SetDependency( MyUUID& MainID, MyUUID& DependentID );
+        void DeleteDependency( MyUUID& MainID, MyUUID& DependentID );
 
-        void UpdateSequence( MyUUIDUnSet& SceneSystems, ISystemQueue& SceneSequence );
+        MyUUIDVector UpdateSequence( MyUUIDUnSet& SystemIDData );
 
     private :
-        bool TopologySort( MyUUIDUnSet& SceneSystems, ISystemQueue& SceneSequence = ISystemQueue() );
-
-        DependencyIndegreeUnMap CalculateIndegree( DependencyIDUnSetUnMap& DepIDSetMap );
-        DependencyIDUnSetUnMap CalculateDependency( MyUUIDUnSet& SceneSystems );
+        bool TopologySort( MyUUIDUnSet& SystemIDData );
+        DependentIndegreeUnMap CalculateIndegree( DependencyIDUnSetUnMap& DependencyIDData );
         
-        void RecursiveCheckDependency( MyUUID MainID, MyUUID SystemID, MyUUIDUnSet& SceneSystems, DependencyIDUnSetUnMap& DepIDSetMap );
-
     private :
         static SystemManager m_SystemManager;
-        MyUUIDISystemUnMap m_ISystemUnMap;
-        DependencyIDUnSetUnMap m_DependencyID;
+        MyUUIDISystemMPtrUnMap m_ISystemMPtrData;
+        DependencyIDUnSetUnMap m_DependencyIDData;
+        SystemIndexUnMap m_SystemIndexData;
 };
 
 #endif // __SYSTEMMANAGER_H__

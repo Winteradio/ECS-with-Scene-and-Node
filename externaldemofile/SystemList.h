@@ -14,7 +14,7 @@ class RenderSystem : public ISystem
         virtual ~RenderSystem() {};
 
     public :
-        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
         {
             for ( auto ID : EntityID )
             {
@@ -22,11 +22,11 @@ class RenderSystem : public ISystem
                 if ( Check )
                 {
                     MemoryPtr<RenderNode> Node = NodeManager::GetHandle().GetNode<RenderNode>( ID );
-                    Log::Info(" RenderSystem Update %s ", ID.GetString().c_str() );
+                    Log::Info(" RenderSystem Update " );
                 }
                 else
                 {
-                    Log::Info(" RenderSystem not Update %s ", ID.GetString().c_str() );
+                    Log::Info(" RenderSystem not Update " );
                 }
             }
         }
@@ -42,9 +42,21 @@ class PhysicsSystem : public ISystem
         virtual ~PhysicsSystem() {};
 
     public :
-        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
         {
-            Log::Info(" PhysicsSystem Update ");
+            for ( auto ID : EntityID )
+            {
+                bool Check = NodeManager::GetHandle().HasNode<PhysicsNode>( ID );
+                if ( Check )
+                {
+                    MemoryPtr<PhysicsNode> Node = NodeManager::GetHandle().GetNode<PhysicsNode>( ID );
+                    Log::Info(" PhysicsSystem Update " );
+                }
+                else
+                {
+                    Log::Info(" PhysicsSystem not Update " );
+                }
+            }
         }
 
         virtual void SetNodeType( const std::type_info* Type = &typeid( PhysicsNode ) )
@@ -61,9 +73,21 @@ class MoveSystem : public ISystem
         virtual ~MoveSystem() {};
 
     public :
-        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
         {
-            Log::Info(" MoveSystem Update ");
+            for ( auto ID : EntityID )
+            {
+                bool Check = NodeManager::GetHandle().HasNode<PhysicsNode>( ID );
+                if ( Check )
+                {
+                    MemoryPtr<PhysicsNode> Node = NodeManager::GetHandle().GetNode<PhysicsNode>( ID );
+                    Log::Info(" MoveSystem Update " );
+                }
+                else
+                {
+                    Log::Info(" MoveSystem not Update " );
+                }
+            }
         }
 
         virtual void SetNodeType( const std::type_info* Type = &typeid( PhysicsNode ) )
@@ -80,9 +104,21 @@ class CollisionSystem : public ISystem
         virtual ~CollisionSystem() {};
 
     public :
-        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
         {
-            Log::Info(" CollisionSystem Update ");
+            for ( auto ID : EntityID )
+            {
+                bool Check = NodeManager::GetHandle().HasNode<CollisionNode>( ID );
+                if ( Check )
+                {
+                    MemoryPtr<CollisionNode> Node = NodeManager::GetHandle().GetNode<CollisionNode>( ID );
+                    Log::Info(" CollisionSystem Update " );
+                }
+                else
+                {
+                    Log::Info(" CollisionSystem not Update " );
+                }
+            }
         }
 
         virtual void SetNodeType( const std::type_info* Type = &typeid( CollisionNode ) )
@@ -99,9 +135,21 @@ class CameraSystem : public ISystem
         virtual ~CameraSystem() {};
 
     public :
-        virtual void Update( float Deltatime, MyUUIDUnSet& EntityID )
+        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& EntityID )
         {
-            Log::Info(" CameraSystem Update ");
+            for ( auto ID : EntityID )
+            {
+                bool Check = NodeManager::GetHandle().HasNode<CameraNode>( ID );
+                if ( Check )
+                {
+                    MemoryPtr<CameraNode> Node = NodeManager::GetHandle().GetNode<CameraNode>( ID );
+                    Log::Info(" CameraSystem Update " );
+                }
+                else
+                {
+                    Log::Info(" CameraSystem not Update " );
+                }
+            }
         }
 
         virtual void SetNodeType( const std::type_info* Type = &typeid( CameraNode ) )

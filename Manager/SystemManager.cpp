@@ -5,6 +5,10 @@ SystemManager::~SystemManager() {}
 
 void SystemManager::Init()
 {
+    m_ISystemMPtrData.clear();
+    m_DependencyIDData.clear();
+    m_SystemIndexData.clear();
+
     Log::Info(" Initialize System Manager ");
 }
 
@@ -13,140 +17,129 @@ void SystemManager::Destroy()
     Log::Info(" Destroy System Manager ");
 }
 
-ISystem* SystemManager::GetSystem( MyUUID ID )
+MemoryPtr<ISystem> SystemManager::GetSystem( MyUUID& ID )
 {
     bool Check = HasSystem( ID );
+    if ( !Check ) { throw Except( " SystemManager | %s | This System is not  existed ", ID.GetString().c_str() ); }
 
-    if ( !Check ) return nullptr;
-
-    return m_ISystemUnMap[ ID ];
+    return m_ISystemMPtrData[ ID ];
 }
 
-bool SystemManager::HasSystem( MyUUID ID )
+bool SystemManager::HasSystem( MyUUID& ID )
 {
-    auto ITR = m_ISystemUnMap.find( ID );
-    if ( ITR != m_ISystemUnMap.end() ) return true;
+    auto ITR = m_ISystemMPtrData.find( ID );
+    if ( ITR != m_ISystemMPtrData.end() ) return true;
     else return false;
 }
 
-void SystemManager::Remove( MyUUID ID )
+void SystemManager::Remove( MyUUID& ID )
 {
     bool Check = HasSystem( ID );
     if ( Check )
     {
-        {
-            auto ITR = m_ISystemUnMap.find( ID );
-            m_ISystemUnMap.erase( ITR );
-        }
+        auto IndexITR = m_SystemIndexData.find( ID );
+        if ( IndexITR != m_SystemIndexData.end() ) m_SystemIndexData.erase( IndexITR );
 
-        {
-            auto ITR = m_DependencyID.find( ID );
-            m_DependencyID.erase( ITR );
-        }
+        auto MPtrITR = m_ISystemMPtrData.find( ID );
+        if ( MPtrITR != m_ISystemMPtrData.end() ) m_ISystemMPtrData.erase( MPtrITR );
 
-        for ( auto& [ SystemID, DepIDSet ] : m_DependencyID )
-        {
-            auto ITR = DepIDSet.find( ID );
+        auto DepITR = m_DependencyIDData.find( ID );
+        if ( DepITR != m_DependencyIDData.end() ) m_DependencyIDData.erase( DepITR );
 
-            if ( ITR != DepIDSet.end() )
-            {
-                DepIDSet.erase( ITR );
-            }
+        for ( auto& [ DependencyID, DependentIDData ] : m_DependencyIDData )
+        {
+            auto ITR = DependentIDData.find( ID );
+            if ( ITR != DependentIDData.end() ) DependentIDData.erase( ITR );
         }
     }
 }
 
-void SystemManager::SetDependency( MyUUID MainID, MyUUID DependencyID )
+void SystemManager::SetDependency( MyUUID& MainID, MyUUID& DependentID )
 {
-    bool Check = HasSystem( MainID ) && HasSystem( DependencyID );
-
+    bool Check = HasSystem( MainID ) && HasSystem( DependentID );
     if ( !Check ) return;
 
-    m_DependencyID[ MainID ].insert( DependencyID );
+    m_DependencyIDData[ MainID ].insert( DependentID );
 
-    MyUUIDUnSet TestIDSet;
-
-    for ( auto [ ID, System ] : m_ISystemUnMap )
-    {
-        TestIDSet.insert( ID );
+    MyUUIDUnSet TestIDData;
+    for ( auto [ ID, System ] : m_ISystemMPtrData ) 
+    { 
+        TestIDData.insert( ID ); 
     }
 
-    Check = TopologySort( TestIDSet );
-
-    if ( !Check ) { DeleteDependency( MainID, DependencyID ); }
+    Check = TopologySort( TestIDData );
+    if ( !Check ) { DeleteDependency( MainID, DependentID ); }
 }
 
-void SystemManager::DeleteDependency( MyUUID MainID, MyUUID DependencyID )
+void SystemManager::DeleteDependency( MyUUID& MainID, MyUUID& DependentID )
 {
-    bool Check = HasSystem( MainID );
-
+    bool Check = HasSystem( MainID ) && HasSystem( DependentID );
     if ( Check )
     {
-        auto ITR = m_DependencyID[ MainID ].find( DependencyID );
-
-        if ( ITR == m_DependencyID[ MainID ].end() )
+        auto ITR = m_DependencyIDData[ MainID ].find( DependentID );
+        if ( ITR != m_DependencyIDData[ MainID ].end() )
         {
-            Log::Warn( " %s System has not %s System ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependencyID) ).name() );
-            return;
-        }
-        else
-        {
-            Log::Info( " Erase Dependency %s for %s ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependencyID) ).name() );
-            m_DependencyID[ MainID ].erase( ITR );
+            Log::Info( " Erase Dependency %s for %s ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependentID) ).name() );
+            m_DependencyIDData[ MainID ].erase( ITR );
         }
     }
 }
 
-void SystemManager::UpdateSequence( MyUUIDUnSet& SceneSystems, ISystemQueue& SystemSequence )
+MyUUIDVector SystemManager::UpdateSequence( MyUUIDUnSet& SystemIDData )
 {
-    TopologySort( SceneSystems, SystemSequence );
+    MyUUIDVector SystemSequence;
+
+    for ( auto& ID : SystemIDData ) 
+    { 
+        SystemSequence.push_back( ID ); 
+    }
+
+    std::sort( SystemSequence.begin(), SystemSequence.end(), 
+        [this]( const MyUUID& ID1, const MyUUID& ID2 )
+        { 
+            return m_SystemIndexData[ ID1 ] < m_SystemIndexData[ ID2 ]; 
+        } 
+    );
+
+    return SystemSequence;
 }
 
-bool SystemManager::TopologySort( MyUUIDUnSet& SceneSystems, ISystemQueue& SystemSequence )
+bool SystemManager::TopologySort( MyUUIDUnSet& SystemIDData )
 {
-    MyUUIDQueue MainQueue, TempQueue;
+    MyUUIDQueue TopoQueue;
+    DependentIndegreeUnMap TopoIndegreeData = CalculateIndegree( m_DependencyIDData );
 
-    DependencyIDUnSetUnMap DepIDMap = CalculateDependency( SceneSystems );
-    DependencyIndegreeUnMap DepIndegreeMap = CalculateIndegree( DepIDMap );
-
-    for ( auto& [ SystemID, Indegree ] : DepIndegreeMap )
+    int Index = 0;
+    for ( auto& [ ID, Indegree ] : TopoIndegreeData )
     {
         if ( Indegree == 0 )
         {
-            MainQueue.push( SystemID );
-            TempQueue.push( SystemID );
+            m_SystemIndexData[ ID ] = ++Index;
+
+            TopoQueue.push( ID );
             Indegree--;
         }
     }
 
-    while( !TempQueue.empty() )
+    while( !TopoQueue.empty() )
     {
-        MyUUID& TempID = TempQueue.front();
-        for ( auto DependencyID : DepIDMap[ TempID ] )
+        MyUUID& ID = TopoQueue.front();
+        for ( auto& DependencyID : m_DependencyIDData[ ID ] )
         {
-            DepIndegreeMap[ DependencyID ]--;
+            TopoIndegreeData[ DependencyID ]--;
 
-            if ( DepIndegreeMap[ DependencyID ] == 0 )
+            if ( TopoIndegreeData[ DependencyID ] == 0 )
             {
-                MainQueue.push( DependencyID );
-                TempQueue.push( DependencyID );
-                DepIndegreeMap[ DependencyID ]--;      
+                m_SystemIndexData[ DependencyID ] = ++Index;
+                TopoQueue.push( DependencyID );
+                TopoIndegreeData[ DependencyID ]--;      
             }
         }
 
-        TempQueue.pop();
+        TopoQueue.pop();
     }
 
-    if ( MainQueue.size() == SceneSystems.size() )
-    {
-        SystemSequence = ISystemQueue();
-        while( !MainQueue.empty() )
-        {
-            SystemSequence.push( GetSystem( MainQueue.front() ) );
-            MainQueue.pop();
-        }
-        return true;
-    }
+    if ( Index == SystemIDData.size() ) return true;
     else
     {
         Log::Warn( " This Graph is circlic " );
@@ -154,69 +147,21 @@ bool SystemManager::TopologySort( MyUUIDUnSet& SceneSystems, ISystemQueue& Syste
     }
 }
 
-SystemManager::DependencyIndegreeUnMap SystemManager::CalculateIndegree( DependencyIDUnSetUnMap& DepIDMap )
+SystemManager::DependentIndegreeUnMap SystemManager::CalculateIndegree( DependencyIDUnSetUnMap& DependencyIDData )
 {
-    DependencyIndegreeUnMap DepIndegreeMap;
+    DependentIndegreeUnMap DependentIndegreeData;
 
-    for ( auto [ SystemID, DependencyIDSet ] : DepIDMap )
-    {
-        DepIndegreeMap[ SystemID ] = 0;
-    }
+    for ( auto& [ ID, IDData ] : DependencyIDData ) { DependentIndegreeData[ ID ] = 0; }
 
-    for ( auto [ SystemID, DependencyIDSet ] : DepIDMap )
+    for ( auto& [ ID, IDData ] : DependencyIDData )
     {
-        for ( auto DependencyID : DependencyIDSet )
+        for ( auto& DependencyID : IDData )
         {
-            DepIndegreeMap[ DependencyID ]++;
+            DependentIndegreeData[ DependencyID ]++;
         }
     }
 
-    return DepIndegreeMap;
-}
-
-SystemManager::DependencyIDUnSetUnMap SystemManager::CalculateDependency( MyUUIDUnSet& SceneSystems )
-{
-    DependencyIDUnSetUnMap DepIDMap;
-
-    for ( MyUUID SystemID : SceneSystems )
-    {
-        bool Check = HasSystem( SystemID );
-
-        if ( !Check )
-        {
-            auto ITR = SceneSystems.find( SystemID );
-            SceneSystems.erase( SystemID );
-
-            Log::Warn( " This System is not existed on System Manager " );
-            continue;
-        }
-
-        DepIDMap[ SystemID ] = MyUUIDUnSet();
-    }
-
-    for ( MyUUID SystemID : SceneSystems )
-    {
-        for ( MyUUID DependencyID : m_DependencyID[ SystemID ] )
-        {
-            RecursiveCheckDependency( SystemID, DependencyID, SceneSystems, DepIDMap );
-        }
-    }
-
-    return DepIDMap;
-}
-
-void SystemManager::RecursiveCheckDependency( MyUUID MainID, MyUUID SystemID, MyUUIDUnSet& SceneSystems, DependencyIDUnSetUnMap& DepIDMap )
-{
-    if ( SceneSystems.find( SystemID ) != SceneSystems.end() )
-    {
-        DepIDMap[ MainID ].insert( SystemID );
-        return;
-    }
-
-    for ( MyUUID DependencyID : m_DependencyID[ SystemID ] )
-    {
-        RecursiveCheckDependency( MainID, DependencyID, SceneSystems, DepIDMap );
-    }
+    return DependentIndegreeData;
 }
 
 SystemManager& SystemManager::GetHandle() { return m_SystemManager; }

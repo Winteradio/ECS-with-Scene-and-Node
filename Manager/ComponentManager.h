@@ -35,13 +35,13 @@ class ComponentManager
             MemoryPtr<T> ComponentMPtr = MemoryManager::GetHandle().Create<T>( std::forward<Args>(args)... );
 
             GetIDData<T>().insert( ComponentMPtr->GetID() );
-            m_IComponentMPtrUnMap[ ComponentMPtr->GetID() ] = ComponentMPtr;
+            m_IComponentMPtrData[ ComponentMPtr->GetID() ] = ComponentMPtr;
 
             return ComponentMPtr;
         }
 
         template< typename T >
-        void Remove( MyUUID ID )
+        void Remove( MyUUID& ID )
         {
             bool Check = HasComponent<T>( ID );
 
@@ -49,13 +49,16 @@ class ComponentManager
             {
                 MemoryManager::GetHandle().Delete<T>( GetComponent( ID ) );
                 
-                auto ITR = GetIDData<T>().find( ID );
-                GetIDData<T>().erase( ITR );
+                auto IDITR = GetIDData<T>().find( ID );
+                if ( IDITR != GetIDData<T>().end() ) GetIDData<T>().erase( ITR );
+
+                auto MPtrITR = m_IComponentMPtrData.find( ID );
+                if ( MPtrITr != m_IComponentMPtrData.end() ) m_IComponentMPtrData.erase( MPtrITR );
             }
         }
 
         template< typename T >
-        MemoryPtr<T> GetComponent( MyUUID ID )
+        MemoryPtr<T> GetComponent( MyUUID& ID )
         {
             bool Check = HasComponent<T>( ID );
 
@@ -64,11 +67,11 @@ class ComponentManager
                 throw Except( " ComponentManager | %s | %s | There is no Component for %s ID ", __FUNCTION__, typeid( T ).name(), ID.GetString().c_str() );
             }
 
-            return m_IComponentMPtrUnMap[ ID ];
+            return m_IComponentMPtrData[ ID ];
         }
 
         template< typename T >
-        bool HasComponent( MyUUID ID )
+        bool HasComponent( MyUUID& ID )
         {
             bool Check = HasIDSet<T>();
             if ( !Check ) return false;
@@ -98,7 +101,7 @@ class ComponentManager
 
     private :
         static ComponentManager m_ComponentManager;
-        MyUUIDIComponentMPtrUnMap m_IComponentMPtrUnMap;
+        MyUUIDIComponentMPtrUnMap m_IComponentMPtrData;
         TypeMyUUIDUnSetUnMap m_IComponentIDData;
         TypeUnSet m_IComponentTypeData;
 };

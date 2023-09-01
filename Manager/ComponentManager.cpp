@@ -6,6 +6,10 @@ ComponentManager::~ComponentManager() {}
 
 void ComponentManager::Init()
 {
+    m_IComponentTypeData.clear();
+    m_IComponentMPtrData.clear();
+    m_IComponentIDData.clear();
+
     Log::Info(" Initialize Component Manager ");
 }
 

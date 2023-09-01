@@ -25,20 +25,20 @@ class SceneManager
         MemoryPtr<Scene> Create();
         MemoryPtr<Scene> Create( std::string Name );
 
-        void Remove( int Index );
+        void Remove( int& Index );
 
-        MemoryPtr<Scene> GetScene( int Index );
+        MemoryPtr<Scene> GetScene( int& Index );
 
         IndexSet& GetIndexData();
         size_t GetCount();
 
     private :
-        bool HasScene( int Index );
+        bool HasScene( int& Index );
 
     private :
         static SceneManager m_SceneManager;
-        IndexSceneMPtrUnMap m_SceneMPtrUnMap;
-        IndexSet m_SceneIndexSet;
+        IndexSceneMPtrUnMap m_SceneMPtrData;
+        IndexSet m_SceneIndexData;
 };
 
 #endif // __SCENEMANAGER_H__

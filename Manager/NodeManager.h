@@ -10,6 +10,7 @@
 class NodeManager
 {
     using MyUUIDINodeMPtrUnMap = MyUUIDUnMap< MemoryPtr<INode> >;
+    using TypeNodeMPtrUnMap = std::unordered_map< const std::type_info*, MyUUIDINodeMPtrUnMap >;
     using TypeMyUUIDUnSetUnMap = std::unordered_map< const std::type_info*, MyUUIDUnSet >;
     using TypeUnSet = std::unordered_set< const std::type_info* >;
 
@@ -27,8 +28,8 @@ class NodeManager
         template< typename T >
         MemoryPtr<T> Create( MemoryPtr<Entity>& Object )
         {
-            bool Check = HasIDSet<T>();
-            if ( !Check ) CreateIDSet<T>();
+            bool Check = HasMPtrMap<T>();
+            if ( !Check ) CreateMPtrMap<T>();
 
             MemoryPtr<T> NodeMPtr = MemoryManager::GetHandle().Create<T>( Object->GetID() );
             
@@ -42,13 +43,13 @@ class NodeManager
 
             NodeMPtr->Init( Object );
             GetIDData<T>().insert( NodeMPtr->GetID() );
-            m_INodeMPtrUnMap[ NodeMPtr->GetID() ] = NodeMPtr;
+            GetMPtrMapData<T>()[ NodeMPtr->GetID() ] = NodeMPtr;
 
             return NodeMPtr;
         }
 
         template< typename T >
-        void Remove( MyUUID ID )
+        void Remove( MyUUID& ID )
         {
             bool Check = HasNode<T>( ID );
 
@@ -56,13 +57,16 @@ class NodeManager
             {
                 MemoryManager::GetHandle().Delete<T>( GetNode( ID ) );
                 
-                auto ITR = GetIDData<T>().find( ID );
-                GetIDData<T>().erase( ITR );
+                auto IDITR = GetIDData<T>().find( ID );
+                if ( IDITR != GetIDData<T>().end() ) GetIDData<T>().erase( IDITR );
+
+                auto MPtrITR = GetMPtrMapData<T>().find( ID );
+                if ( MPtrITR != GetMPtrMapData<T>().end() ) GetMPtrMapData<T>().erase( MPtrITR );
             }
         }
 
         template< typename T >
-        MemoryPtr<T> GetNode( MyUUID ID )
+        MemoryPtr<T> GetNode( MyUUID& ID )
         {
             bool Check = HasNode<T>( ID );
 
@@ -71,14 +75,14 @@ class NodeManager
                 throw Except( " NodeManager | %s | %s | There is no Node for %s ID ", __FUNCTION__, typeid( T ).name(), ID.GetString().c_str() );
             }
 
-            return m_INodeMPtrUnMap[ ID ];
+            return GetMPtrMapData<T>()[ ID ];
         }
 
         template< typename T >
-        bool HasNode( MyUUID ID )
+        bool HasNode( MyUUID& ID )
         {
-            bool Check = HasIDSet<T>();
-            if ( !Check ) CreateIDSet<T>();
+            bool Check = HasMPtrMap<T>();
+            if ( !Check ) return false;
 
             auto ITR = GetIDData<T>().find( ID );
             if ( ITR != GetIDData<T>().end() ) return true;
@@ -94,18 +98,22 @@ class NodeManager
 
     private :
         template< typename T >
-        bool HasIDSet() { return HasIDSet( &typeid( T ) ); }
+        MyUUIDINodeMPtrUnMap& GetMPtrMapData() { return GetMPtrMapData( &typeid( T ) ); }
+
+        template< typename T > 
+        bool HasMPtrMap() { return HasMPtrMap( &typeid( T ) ); }
 
         template< typename T >
-        void CreateIDSet() { CreateIDSet( &typeid( T ) ); }
+        void CreateMPtrMap() { return CreateMPtrMap( &typeid( T ) ); }
 
     private :
-        bool HasIDSet( const std::type_info* Type );
-        void CreateIDSet( const std::type_info* Type );
+        MyUUIDINodeMPtrUnMap& GetMPtrMapData( const std::type_info* Type );
+        bool HasMPtrMap( const std::type_info* Type );
+        void CreateMPtrMap( const std::type_info* Type );
 
     private :
         static NodeManager m_NodeManager;
-        MyUUIDINodeMPtrUnMap m_INodeMPtrUnMap;
+        TypeNodeMPtrUnMap m_INodeMPtrData;
         TypeMyUUIDUnSetUnMap m_INodeIDData;
         TypeUnSet m_INodeTypeData;
 };

@@ -25,19 +25,18 @@ class EntityManager
         MemoryPtr<Entity> Create( MyUUID ID );
         MemoryPtr<Entity> Create( MyUUID ID, std::string Name );
         
-        void Remove( MyUUID ID );
+        void Remove( MyUUID& ID );
         
-        MemoryPtr<Entity> GetEntity( MyUUID ID );
-
+        MemoryPtr<Entity> GetEntity( MyUUID& ID );
         MyUUIDUnSet& GetIDData();
 
     private :
-        bool HasEntity( MyUUID ID );
+        bool HasEntity( MyUUID& ID );
 
     private :
         static EntityManager m_EntityManager;
-        MyUUIDEntityMPtrUnMap m_EntityMPtrUnMap;
-        MyUUIDUnSet m_EntityIDUnSet;
+        MyUUIDEntityMPtrUnMap m_EntityMPtrData;
+        MyUUIDUnSet m_EntityIDData;
 };
 
 #endif // __ENTITYMANAGER_H__

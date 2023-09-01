@@ -32,6 +32,8 @@ void Example()
     MemoryPtr<Entity> Num_1 = EntityManager::GetHandle().Create();
     MemoryPtr<Entity> Num_2 = EntityManager::GetHandle().Create();
 
+    MemoryPtr<Entity>& Num_Ref = EntityManager::GetHandle().GetEntity( Num_1->GetID() );
+
     // Create Component
     MemoryPtr<MeshComponent> Mesh = ComponentManager::GetHandle().Create<MeshComponent>( MyUUID() );
     MemoryPtr<TransformComponent> Trans = ComponentManager::GetHandle().Create<TransformComponent>( MyUUID() );
@@ -43,16 +45,24 @@ void Example()
     // Create RenderNode through Num_1 Entity,
     // So, Node_1 uses Mesh Component and Transfor Component in Num_1 Entity
     MemoryPtr<RenderNode> Node_1 = NodeManager::GetHandle().Create<RenderNode>( Num_1 );
+    MemoryPtr<CameraNode> Node_2 = NodeManager::GetHandle().Create<CameraNode>( Num_1 );
+    MemoryPtr<CollisionNode> Node_3 = NodeManager::GetHandle().Create<CollisionNode>( Num_1 );
+    MemoryPtr<PhysicsNode> Node_4 = NodeManager::GetHandle().Create<PhysicsNode>( Num_1 );
+
+    MemoryPtr<RenderNode> Node_Ref = NodeManager::GetHandle().GetNode<RenderNode>( Node_1->GetID() );
 
     // Register Node_1 Render Node to Main Scene
     Main->RegisterNode<RenderNode>( Node_1->GetID() );
+    Main->RegisterNode<CameraNode>( Node_2->GetID() );
+    Main->RegisterNode<CollisionNode>( Node_3->GetID() );
+    Main->RegisterNode<PhysicsNode>( Node_4->GetID() );
 
     // Create each System using System Manager
-    ISystem* Render = SystemManager::GetHandle().Create<RenderSystem>();
-    ISystem* Move = SystemManager::GetHandle().Create<MoveSystem>();
-    ISystem* Collision = SystemManager::GetHandle().Create<CollisionSystem>();
-    ISystem* Physics = SystemManager::GetHandle().Create<PhysicsSystem>();
-    ISystem* Camera = SystemManager::GetHandle().Create<CameraSystem>();
+    MemoryPtr<ISystem> Render = SystemManager::GetHandle().Create<RenderSystem>();
+    MemoryPtr<ISystem> Move = SystemManager::GetHandle().Create<MoveSystem>();
+    MemoryPtr<ISystem> Collision = SystemManager::GetHandle().Create<CollisionSystem>();
+    MemoryPtr<ISystem> Physics = SystemManager::GetHandle().Create<PhysicsSystem>();
+    MemoryPtr<ISystem> Camera = SystemManager::GetHandle().Create<CameraSystem>();
 
     // Set dependency eacy system
     SystemManager::GetHandle().SetDependency( Physics->GetID(), Collision->GetID() );

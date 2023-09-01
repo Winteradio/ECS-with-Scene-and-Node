@@ -11,7 +11,7 @@ class ISystem : public IObject
         virtual ~ISystem(){};
 
     public :
-        virtual void Update( float DeltaTime, int ScenIndex, MyUUIDUnSet& EntityID ) = 0;
+        virtual void Update( float DeltaTime, int SceneIndex, MyUUIDUnSet& NodeIDData ) = 0;
 
         virtual void SetNodeType( const std::type_info* Type ) = 0;
         const std::type_info*& GetNodeType() { return m_NodeType; }
@@ -24,5 +24,11 @@ using ISystemQueue = std::queue< ISystem* >;
 using ISystemVector = std::vector< ISystem* >;
 using ISystemSet = std::set< ISystem* >;
 using ISystemUnSet = std::unordered_set< ISystem* >;
+
+template< typename T >
+using ISystemMap = std::map< T, ISystem* >;
+
+template< typename T >
+using ISystemUnMap = std::unordered_map< T, ISystem* >;
 
 #endif // __ISYSTEM_H__

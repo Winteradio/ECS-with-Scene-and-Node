@@ -20,14 +20,14 @@ class Entity : public IObject
 		void AddComponent( MyUUID ID )
 		{
 			bool Result = HasComponent<T>();
-			if ( !Result ) m_ComponentID[ &typeid( T ) ] = ID;
+			if ( !Result ) m_ComponentIDData[ &typeid( T ) ] = ID;
 		}
 
 		template< typename T >
 		void RemoveComponent()
 		{
 			bool Result = HasComponent<T>();
-			if ( Result ) m_ComponentID.erase( &typeid( T ) );
+			if ( Result ) m_ComponentIDData.erase( &typeid( T ) );
 		}
 
 		template< typename T >
@@ -40,14 +40,14 @@ class Entity : public IObject
 				throw Except( " Entity | %s | This Entity has not type of %s component ", __FUNCTION__, typeid( T ).name() );
 			}
 
-			return m_ComponentID[ &typeid( T ) ];
+			return m_ComponentIDData[ &typeid( T ) ];
 		}
 
 		template< typename T >
 		bool HasComponent()
 		{
-			auto ITR = m_ComponentID.find( &typeid( T ) );
-			if ( ITR != m_ComponentID.end() ) { return true; }
+			auto ITR = m_ComponentIDData.find( &typeid( T ) );
+			if ( ITR != m_ComponentIDData.end() ) { return true; }
 			else { return false; }
 		}
 
@@ -58,7 +58,7 @@ class Entity : public IObject
 		std::string& GetName();
 
 	private :
-		TypeMyUUIDUnMap m_ComponentID;
+		TypeMyUUIDUnMap m_ComponentIDData;
 		std::string m_Name;
 };
 

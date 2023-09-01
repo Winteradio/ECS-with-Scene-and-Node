@@ -25,36 +25,36 @@ class Scene
 
     public :
         template< typename T >
-        void RegisterNode( MyUUID ID ) { RegisterNode( &typeid( T ), ID ); }
+        void RegisterNode( MyUUID& ID ) { RegisterNode( &typeid( T ), ID ); }
 
         template< typename T >
-        void RemoveNode( MyUUID ID ) { RemoveNode( &typeid( T ), ID ); }
+        void RemoveNode( MyUUID& ID ) { RemoveNode( &typeid( T ), ID ); }
 
         template< typename T >
         MyUUIDUnSet& GetNodeIDData() { return GetNodeIDData( &typeid( T ) ); }
         
     private :
         template< typename T >
-        bool HasNode( MyUUID ID ) { return HasNode( &typeid( T ), ID ); }
+        bool HasNode( MyUUID& ID ) { return HasNode( &typeid( T ), ID ); }
 
         template< typename T >
         bool HasNodeType() { return HasNodeType( &typeid( T ) ); }
 
     public :
-        void RegisterNode( const std::type_info* Type, MyUUID ID );
-        void RemoveNode( const std::type_info* Type, MyUUID ID );
+        void RegisterNode( const std::type_info* Type, MyUUID& ID );
+        void RemoveNode( const std::type_info* Type, MyUUID& ID );
     private :
-        bool HasNode( const std::type_info* Type, MyUUID ID );
+        bool HasNode( const std::type_info* Type, MyUUID& ID );
         bool HasNodeType( const std::type_info* Type );
 
 
     public :
-        void RegisterSystem( MyUUID ID );
-        void RegisterSystem( const std::type_info* Type, MyUUID ID );
+        void RegisterSystem( MyUUID& ID );
+        void RegisterSystem( const std::type_info* Type, MyUUID& ID );
 
-        void RemoveSystem( MyUUID ID );
+        void RemoveSystem( MyUUID& ID );
     private :
-        bool HasSystem( MyUUID ID );
+        bool HasSystem( MyUUID& ID );
         
 
     private :
@@ -80,8 +80,7 @@ class Scene
         TypeMyUUIDUnSetUnMap m_NodeIDData;
         TypeMyUUIDUnSetUnMap m_PendingSystemIDData;
         MyUUIDUnSet m_SystemIDData;
-        ISystemQueue m_MainSequence;
-        ISystemQueue m_DoneSequence;
+        MyUUIDVector m_SystemSequence;
 
         std::string m_Name;
         int m_Index;

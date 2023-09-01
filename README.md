@@ -1,5 +1,8 @@
 # Entity Component System
 
+## English Version
+[Link to ENG README.md](./README_ENG.md)
+
 진행 기간: 2023/03/01 → 2023/08/13
 스킬: C++, CMake, ECS
 
@@ -9,16 +12,11 @@ Github [Log Project](https://github.com/Winteradio/Log)
 
 Github [Memory Project](https://github.com/Winteradio/MemoryPool)
 
-Github [System Dependency](https://github.com/Winteradio/System-Dependency)
-
 ---
 
 ## 요약
 
 - ECS ( Entity Component System ) 재구성
-- 부수적인 라이브러리 생성
-    - Log Project
-    - Memory Project
 
 ## 🛠️ 기술 스택 및 라이브러리
 
@@ -33,9 +31,9 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
 
 ### ECS ( Entity Component System ) 이란?
 
-- 유니티( Unity )에서 개발 중인, DOTS 기반 시스템
-- DOTS vs OOP
-    - DOTS 란 ?
+- **유니티( Unity )에서 개발 중인, DOTS 기반 시스템**
+- **DOTS vs OOP**
+    - **DOTS** 란 ?
         - 데이터 지향 기술 스택 ( Data-Oriented Technology Stack )
         - 데이터 중심적인 프로그래밍 접근 방식을 의미
     - OOP와의 차이점은 무엇인가?
@@ -51,8 +49,8 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
             사용되는 메소드( or System )들을 독립적으로 구성할 수 있음
             - 메소드( or System )들은 객체에 대한 접근이 아닌 데이터에 대한 접근이기에,
             객체( Object, Entity )와 시스템( System )의 분리가 가능함
-- Entity Component System
-    - Entity ( 객체 혹은 네이밍 ) 란?
+- **Entity Component System**
+    - **Entity** ( 객체 혹은 네이밍 ) 란?
         - 게임 오브젝트, 캐릭터 등과 같은 개별적인 객체를 나타내는 추상화
         - 단순 식별자 역할 ( 네이밍 )을 하며 데이터를 직접 지니지 않음
         - 예시
@@ -61,11 +59,11 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
                 - “스킬” Component - “홍길동”
                 - “무기” Component - “홍길동”
             - 위와 같은 Entity는 Component들의 식별자 역할
-    - Component ( 구성 요소 ) 란?
+    - **Component** ( 구성 요소 ) 란?
         - 실제 사용되는 데이터를 나타냄
         - Entity에 부여될 시, Entity의 ID로 Component를 식별할 수 있음
         - Component타입에 따라 연속된 메모리상에 존재해야 함
-    - System ( 시스템 ) 이란?
+    - **System** ( 시스템 ) 이란?
         - Component를 처리하고 조작하는 로직
         - 각각의 System은 필요로하는 Component에 접근 권한을 지님
             - Entity가 직접 System과 연결되는 것이 아닌, ID를 통한 Component로의 접근
@@ -79,13 +77,13 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
 
 ### ECS의 종류 : Sparse Set vs Archetype
 
-- Sparse Set
+- **Sparse Set**
     - Entity ID와 각각의 Component을 연결시키는 방법
     - Entity ID을 저장하는 Dense Set과 Component들을 저장하는 Sparse Set 사용
     - 해당 Entity ID를 활용하여서 연속된 메모리 상에 존재하는
     Component에 빠르게 접근하는 방식
     - 관련 사이트 : [Github의 Entt 라이브러리](https://github.com/skypjack/entt)
-- Archetype
+- **Archetype**
     - 비슷한 Component 구성을 가진 Entity들을 다루는 그룹
     - 각각의 Archetype은 고유한 Component 구성을 지님
     - Sparse Set과 달리, Component들을 연속적인 데이터로 저장하지 않고,
@@ -94,7 +92,7 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
 
 ### 왜 ECS를 OOP 언어인 C++에서 구현하려는 것인가?
 
-- 게임 엔진 구조에 대한 이해
+- **게임 엔진 구조에 대한 이해**
     - 지속적으로 사용할 수 있는 라이브러리 필요
     - 엔진의 내부적인 동작 원리에 대한 이해도 부족
         - 프로젝트 파일은 어떻게 구성되어있는지
@@ -103,10 +101,10 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
             - C++ 상에서 런타임 중에 해당 프로그램을 재빌드하는 것이 불가능
             - 그렇다면 엔진과 게임을 따로 나눠서 진행하는건지
     - 다른 엔진들의 UML 정보만으론 구현하기 어려움
-- 독립적인 시스템들의 구현
-    - 충돌, 유체 시뮬레이션과 같은 하나의 기능을 구현하기 위한 밑작업이 필요했음
+- **독립적인 시스템들의 구현**
+    - 충돌, 유체 시뮬레이션과 같은 하나의 기능을 구현하기 위한 기본 엔진 필요
 
-- 조금 다른 ECS를 만들어 보고 싶었음
+- **기존과 다른 ECS의 구현**
     - Sparse Set의 문제점
         - Entity ID를 통해서 오직 하나의 Component에 대한 접근만 가능함
         - 모든 System들이 하나의 Component만을 사용할 수는 없음
@@ -124,7 +122,7 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
             - 이 경우에는, Light Render Archetype을 새로 선언
             필요로 하는 Component들을 복제 후,
             기존의 Archetype에서 삭제시켜야 했음
-    - Node 개념을 활용
+    - **Node** 개념을 활용
         - Unity나 Unreal Engine에서 자주 등장하는 Node개념을 사용
         - 각각의 Component들에 접근권한이 있는 Node개념을 추가하게 된다면
         Sparse Set과 Archetype의 개념을 같이 사용할 수 있다고 생각
@@ -181,7 +179,7 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
 
 ### 인터페이스
 
-- IObject
+- **IObject**
     - MyUUID를 사용하는 객체들을 위한 인터페이스
         
         ```cpp
@@ -203,7 +201,7 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
         ```
         
 
-- IComponent
+- **IComponent**
     - ComponentManager에서 IComponent 포인터로 객체 주소를 저장하기 위한 인터페이스
         
         ```cpp
@@ -217,32 +215,40 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
         ```
         
 
-- INode
+- **INode**
     - NodeManager에서 INode 포인토로 객체 주소를 저장하기 위한 인터페이스
-        
-        ```cpp
-        class INode : public IObject
-        {
-            public :
-                INode() {};
-                INode( MyUUID ID ) : IObject( ID ) {}
-                virtual ~INode(){};
-        
-            public :
-                virtual bool Check( MemoryPtr<Entity>& EntityMPtr ) = 0;
-                virtual void Init( MemoryPtr<Entity>& EntityMPtr ) = 0;
-        };
-        ```
-        
-        - Check( MemoryPtr<Entity>& EntityMPtr )
+        - **Check( MemoryPtr<Entity>& EntityMPtr )**
             - 필요로 하는 Component들을 NodeManager를 통해서 Entity가 지녔는지 확인
-        - Init( MemoryPtr<Entity>& EntityMPtr )
+        - **Init( MemoryPtr<Entity>& EntityMPtr )**
             - Component들을 지녔을 시, ComponentManager와 Entity를 통해서
             필요로 하는 Component들의 MemorPtr을 획득
+            
+            ```cpp
+            class INode : public IObject
+            {
+                public :
+                    INode() {};
+                    INode( MyUUID ID ) : IObject( ID ) {}
+                    virtual ~INode(){};
+            
+                public :
+                    virtual bool Check( MemoryPtr<Entity>& EntityMPtr ) = 0;
+                    virtual void Init( MemoryPtr<Entity>& EntityMPtr ) = 0;
+            };
+            ```
+            
     - 각 Node들은 Entity와 동일한 ID를 지님
         - 해당 Entity에 대해 중복되는 Node가 있을 수 없기 때문
-- ISystem
+- **ISystem**
     - SystemManager에서 ISystem 포인터로 객체 주소를 저장하기 위한 인터페이스
+    - **m_NodeType**
+        - 해당 System에서 요구하는 Node 타입의 정보
+        - Scene의 Update 함수에서 System에서 요구하는 Node 타입 정보를 
+        토대로 MyUUID Set 데이터를 주기 때문
+    - **Update( float DeltaTime, int SceneIndex, MyUUIDUnSet& NodeIDData ) = 0;**
+        - **SceneIndex**
+            - 해당 Scene의 정보가 있어야 System상에서 
+            Node, Component, Entity 등을 추가할 수 있는 기능을 넣을 수 있음
         
         ```cpp
         class ISystem : public IObject
@@ -253,7 +259,7 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
                 virtual ~ISystem(){};
         
             public :
-                virtual void Update( float DeltaTime, int ScenIndex, MyUUIDUnSet& EntityID ) = 0;
+                virtual void Update( float DeltaTime, int SceneIndex, MyUUIDUnSet& NodeIDData ) = 0;
         
                 virtual void SetNodeType( const std::type_info* Type ) = 0;
                 const std::type_info*& GetNodeType() { return m_NodeType; }
@@ -263,18 +269,11 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
         };
         ```
         
-        - m_NodeType
-            - 해당 System에서 요구하는 Node 타입의 정보
-            - Scene의 Update 함수에서 System에서 요구하는 Node 타입 정보를 
-            토대로 MyUUID Set 데이터를 주기 때문
-        - Update( float DeltaTime, int SceneIndex, MyUUIDUnSet& EntityID ) = 0;
-            - SceneIndex
-                - 해당 Scene의 정보가 있어야 System상에서 
-                Node, Component, Entity 등을 추가할 수 있는 기능을 넣을 수 있음
+    
 
 ### 클래스
 
-- Scene
+- **Scene**
     - 주된 역할
         - Unity의 ECS 구조에서는 World에 해당하는 역할
         - 실제 Entity ID( = Node ID )를 다루며, System들을 실행시키는 객체
@@ -296,96 +295,99 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
             - **유효한** System Sequence들을 실행
     - **유효성 검사**
         - Node를 통한, 등록된 System의 사용가능 여부
+        - **Scene::CheckSystemValidity( const std::type_info* Type )**
+            - 해당 Type에 대한 유효성 검사 실시
+            - **m_NodeTypeData**
+                - 현재 Scene이 지닌 NodeType에 대한 정보
+            - **m_PendingSystemIDData**
+                - 해당 NodeType을 요구하는 유효성 검사를 통과하지 
+                못한 System들의 ID Data
+            - **m_SystemIDData**
+                - 유효성 검사를 통과한 System들의 ID Data
+            - **m_NodeTypeData**과 ***m_PendingSystmeIDData***에 Type이 있는지 확인
+            - 있다면, **m_SystemIDData**로 해당 SystemID를 넘겨줌
             
             ```cpp
-            // System에 대한 유효성 검사
             void Scene::CheckSystemValidity( const std::type_info* Type )
             {
-                auto NodeITR = m_NodeTypeData.find( Type );
-                if ( NodeITR == m_NodeTypeData.end() ) return ;
+                bool Check = HasNodeType( Type );
+                if ( !Check ) return ;
             
-                auto SystemITR = m_PendingSystemIDData.find( Type );
-                if ( SystemITR == m_PendingSystemIDData.end() ) return;
+                auto ITR = m_PendingSystemIDData.find( Type );
+                if ( ITR == m_PendingSystemIDData.end() ) return;
             
-                for ( auto SystemID : m_PendingSystemIDData[ Type ] )
+                for ( auto ID : m_PendingSystemIDData[ Type ] )
                 {
-                    m_SystemIDData.insert( SystemID );
+                    m_SystemIDData.insert( ID );
                 }
             
-                m_PendingSystemIDData.erase( SystemITR );
+                m_PendingSystemIDData.erase( ITR );
             
                 UpdateSequence();
             }
+            ```
             
-            // 유효성 검사 후 SceneManager를 통한 의존성 검사
+            - 유효성 검사 후, 해당 System ID Data들을 토대로, 의존성 검사 실시
+            
+            ```cpp
             void Scene::UpdateSequence()
             {
-                SystemManager::GetHandle().UpdateSequence( m_SystemIDData, m_MainSequence );
-                ClearSequence( m_DoneSequence );
-            }
-            
-            // Node 추가 시, 유효성 검사 실시
-            void Scene::RegisterNode( const std::type_info* Type, MyUUID ID )
-            {
-                bool Check = HasNode( Type, ID );
-            
-                if ( !Check ) m_NodeIDData[ Type ].insert( ID );
-            }
-            
-            bool Scene::HasNode( const std::type_info* Type, MyUUID ID )
-            {
-                {
-                    auto ITR = m_NodeTypeData.find( Type );
-                    if ( ITR == m_NodeTypeData.end() )
-                    {
-                        m_NodeTypeData.insert( Type );
-                        m_NodeIDData[ Type ] = MyUUIDUnSet();
-            
-                        CheckSystemValidity( Type );
-                        return false;
-                    }
-                }
-            
-                {
-                    auto ITR = m_NodeIDData[ Type ].find( ID );
-                    if ( ITR != m_NodeIDData[ Type ].end() ) return true;
-                    else return false;
-                }
-            }
-            
-            // System 추가 시, 유효성 검사 실
-            void Scene::RegisterSystem( const std::type_info* Type, MyUUID ID )
-            {
-                bool Check = HasSystem( ID );
-            
-                if ( !Check )
-                {
-                    auto ITR = m_PendingSystemIDData.find( Type );
-                    if ( ITR == m_PendingSystemIDData.end() )
-                    {
-                        m_PendingSystemIDData[ Type ] = MyUUIDUnSet();
-                    }
-            
-                    m_PendingSystemIDData[ Type ].insert( ID );
-                    CheckSystemValidity( Type );
-                }
+                m_SystemSequence = SystemManager::GetHandle().UpdateSequence( m_SystemIDData );
             }
             ```
             
-            - Scene::CheckSystemValidity( const std::type_info* Type )
-                - 해당 Type에 대한 유효성 검사 실시
-                - m_NodeTypeData
-                    - 현재 Scene이 지닌 NodeType에 대한 정보
-                - m_PendingSystemIDData
-                    - 해당 NodeType을 요구하는 유효성 검사를 통과하지 
-                    못한 System들의 ID Data
-                - m_SystemIDData
-                    - 유효성 검사를 통과한 System들의 ID Data
-                - m_NodeTypeData과 m_PendingSystmeIDData에 Type이 있는지 확인
-                - 있다면, m_SystemIDData로 해당 SystemID를 넘겨줌
-                - Node에 새로운 타입이 추가되거나, 새로운 System이 추가될 때마다 호출
-
-- Entity
+            - 호출
+                - 새로운 Node 타입 추가
+                
+                ```cpp
+                void Scene::RegisterNode( const std::type_info* Type, MyUUID ID )
+                {
+                    bool Check = HasNode( Type, ID );
+                
+                    if ( !Check ) m_NodeIDData[ Type ].insert( ID );
+                }
+                
+                bool Scene::HasNode( const std::type_info* Type, MyUUID ID )
+                {
+                    bool Check = HasNodeType( Type );
+                    if ( !Check )
+                    {
+                        m_NodeTypeData.insert( Type );
+                        m_NodeIDData[ Type ] = MyUUIDUnSet();
+                
+                        CheckSystemValidity( Type );
+                        return false; 
+                    }
+                
+                    auto IDITR = m_NodeIDData[ Type ].find( ID );
+                    if ( IDITR != m_NodeIDData[ Type ].end() ) return true;
+                    else return false;
+                }
+                ```
+                
+                - 새로운 System 추가 시에 호출
+                
+                ```cpp
+                void Scene::RegisterSystem( const std::type_info* Type, MyUUID& ID )
+                {
+                    bool Check = HasSystem( ID );
+                
+                    if ( !Check )
+                    {
+                        auto IDITR = m_PendingSystemIDData.find( Type );
+                        if ( IDITR == m_PendingSystemIDData.end() )
+                        {
+                            m_PendingSystemIDData[ Type ] = MyUUIDUnSet();
+                        }
+                
+                        m_PendingSystemIDData[ Type ].insert( ID );
+                        CheckSystemValidity( Type );
+                    }
+                }
+                ```
+                
+            
+- **Entity**
     - 주된 역할
         - Component들을 등록 및 확인하는 객체
     - Component 관련
@@ -394,7 +396,7 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
 
 ### 매니저
 
-- SceneManager
+- **SceneManager**
     - 주된 역할
         - Scene을 생성 및 삭제하는 역할
     - Scene 관련
@@ -402,17 +404,13 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
             - Scene에 Index 부여
             - Scene의 경우에는 인스턴스가 많이 생성되지 않기에, UUID는 불필요하다고 생각
         - Index를 통해 Scene에 접근 가능
-        - 전체 Index 정보를 가져올 수 있음
-            - 파일 저장 및 불러오기, UI에 사용하기 위해서
-- EntityManager
+- **EntityManager**
     - 주된 역할
         - Entity를 생성 및 삭제하는 역
     - Entity 관련
         - Entity를 생성
         - ID를 통해 Entity에 접근 가능
-        - 전체 ID 정보를 가져올 수 있음
-            - 파일 저장 및 불러오기, UI에서 사용하기 위해서
-- ComponentManager
+- **ComponentManager**
     - 주된 역할
         - Component 생성 및 삭제하는 역할
     - Component 관련
@@ -421,130 +419,396 @@ Github [System Dependency](https://github.com/Winteradio/System-Dependency)
         - 전체 Type 정보를 가져올 수 있음
             - 해당 Type에 전체 ID 정보를 가져올  수 있음
                 - 파일 저장 및 불러오기, UI에서 사용하기 위해서
-- SystemManager
+- **SystemManager**
     - 주된 역할
         - System 생성 및 삭제하는 역할
     - System 관련
         - System을 생성
         - ID를 통해  System에 접근 가능
         - 전체 ID 정보를 가져올 수 있음
-        - 의존성 설정 가능
-            
-            ```cpp
-            // 의존성 설정
-            void SystemManager::SetDependency( MyUUID MainID, MyUUID DependencyID )
-            {
-                bool Check = HasSystem( MainID ) && HasSystem( DependencyID );
-            
-                if ( !Check ) return;
-            
-                m_DependencyID[ MainID ].insert( DependencyID );
-            
-                MyUUIDUnSet TestIDSet;
-            
-                for ( auto [ ID, System ] : m_ISystemUnMap )
+        - **의존성 설정 가능**
+            - **SetDependency( MyUUID& MainID, MyUUID& DependentID )**
+                - **MainID**
+                    - 의존되어지는 System ID
+                - **DependentID**
+                    - 의존하는 System ID
+                - 두 ID를 **SystemManager**에서 보유 중인지 확인
+                    - 보유 중일 시, **Dependency** 기입
+                    - **m_DependencyIDData** : 해당 ID를 의존하는 ID Data들의 모임
+                - 순환 그래프 여부를 확인하기 위한 Test용 IDData 객체 생성
+                    - 순환 그래프일 시, 해당 Dependency 삭제
+                
+                ```cpp
+                void SystemManager::SetDependency( MyUUID& MainID, MyUUID& DependencyID )
                 {
-                    TestIDSet.insert( ID );
-                }
-            
-                Check = TopologySort( TestIDSet );
-            
-                if ( !Check ) { DeleteDependency( MainID, DependencyID ); }
-            }
-            
-            // 의존성 삭제
-            void SystemManager::DeleteDependency( MyUUID MainID, MyUUID DependencyID )
-            {
-                bool Check = HasSystem( MainID );
-            
-                if ( Check )
-                {
-                    auto ITR = m_DependencyID[ MainID ].find( DependencyID );
-            
-                    if ( ITR == m_DependencyID[ MainID ].end() )
-                    {
-                        Log::Warn( " %s System has not %s System ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependencyID) ).name() );
-                        return;
+                    bool Check = HasSystem( MainID ) && HasSystem( DependencyID );
+                    if ( !Check ) return;
+                
+                    m_DependencyIDData[ MainID ].insert( DependencyID );
+                
+                    MyUUIDUnSet TestIDSet;
+                    for ( auto [ ID, System ] : m_ISystemMPtrData ) 
+                    { 
+                        TestIDSet.insert( ID ); 
                     }
+                
+                    Check = TopologySort( TestIDSet );
+                    if ( !Check ) { DeleteDependency( MainID, DependencyID ); }
+                }
+                ```
+                
+            - **DeleteDependency( MyUUID& MainID, MyUUID& DependentID )**
+                - **MainID**
+                    - 의존되어지는 System ID
+                - **DependentID**
+                    - 의존하는 System ID
+                - **MainID**가 **SystemManager**에서 보유 중인지 확인
+                    - 보유 중일 시, 해당 **MainID**에서 **DependentID**의 의존성 제거
+                
+                ```cpp
+                void SystemManager::DeleteDependency( MyUUID& MainID, MyUUID& DependentID )
+                {
+                    bool Check = HasSystem( MainID ) && HasSystem( DependentID );
+                    if ( Check )
+                    {
+                        auto ITR = m_DependencyIDData[ MainID ].find( DependentID );
+                        if ( ITR != m_DependencyIDData[ MainID ].end() )
+                        {
+                            Log::Info( " Erase Dependency %s for %s ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependentID) ).name() );
+                            m_DependencyIDData[ MainID ].erase( ITR );
+                        }
+                    }
+                }
+                ```
+                
+        - **순환 그래프 검사**
+            - **TopologySort( MyUUIDUnSet& SystemIDData )**
+                - **Kahn’s algorithm**을 토대로 구현
+                - **TopoQueue**
+                    - Indegree가 0인 유효한 ID가 들어가는 큐
+                - **TopoIndegreeData**
+                    - 해당 ID별 Indegree가 들어있는 Data
+                - 제일 처음 주어진 정보를 토대로 Indegree가 0인 ID를 TopoQueue에 기입 후,
+                Index 부여
+                - **TopoQueue**에서 꺼내면서 해당 ID를 방문
+                - 해당 ID에 의존하는 ID들 Indegree 감소
+                - 다시 Indegree가 0일 경우 TopoQueue에 기입 후, Index 부여
+                - **TopoQueue**가 빌 때까지 반복
+                - Index와 주어졌던 **SystemIDData**의 갯수가 다를 경우, 순환 그래프
+                
+                ```cpp
+                bool SystemManager::TopologySort( MyUUIDUnSet& SystemIDData )
+                {
+                    MyUUIDQueue TopoQueue;
+                    DependentIndegreeUnMap TopoIndegreeData = CalculateIndegree( m_DependencyIDData );
+                
+                    int Index = 0;
+                    for ( auto& [ ID, Indegree ] : TopoIndegreeData )
+                    {
+                        if ( Indegree == 0 )
+                        {
+                            m_SystemIndexData[ ID ] = ++Index;
+                
+                            TopoQueue.push( ID );
+                            Indegree--;
+                        }
+                    }
+                
+                    while( !TopoQueue.empty() )
+                    {
+                        MyUUID& ID = TopoQueue.front();
+                        for ( auto& DependencyID : m_DependencyIDData[ ID ] )
+                        {
+                            TopoIndegreeData[ DependencyID ]--;
+                
+                            if ( TopoIndegreeData[ DependencyID ] == 0 )
+                            {
+                                m_SystemIndexData[ DependencyID ] = ++Index;
+                                TopoQueue.push( DependencyID );
+                                TopoIndegreeData[ DependencyID ]--;      
+                            }
+                        }
+                
+                        TopoQueue.pop();
+                    }
+                
+                    if ( Index == SystemIDData.size() ) return true;
                     else
                     {
-                        Log::Info( " Erase Dependency %s for %s ", typeid( *GetSystem( MainID ) ).name(), typeid( *GetSystem( DependencyID) ).name() );
-                        m_DependencyID[ MainID ].erase( ITR );
+                        Log::Warn( " This Graph is circlic " );
+                        return false;
                     }
                 }
-            }
-            ```
-            
-            - SetDependency( MyUUID MainID, MyUUID DependencyID )
-                - MainID : 의존되어지는 System ID
-                - DependencyID : 의존하는 System ID
-                - 두 ID를 SystemManager에서 보유 중인지 확인
-                    - 보유 중일 시, Dependency 기입
-                    - m_DependencyID : 해당 ID를 의존하는 ID Set들의 모임
-                - 순환 그래프 여부를 확인하기 위한 Test용 IDSet 객체 생성
-                    - 순환 그래프일 시, 해당 Dependency 삭제
-            - DeleteDependency( MyUUID MainID, MyUUID DependencyID )
-                - MainID : 의존되어지는 System ID
-                - Dependency : 의존하는 System ID
-                - MainID가 SystemManager에서 보유 중인지 확인
-                    - 보유 중일 시, 해당 MainID에서 DependencyID의 의존성 제거
-        - 순환 그래프 여부 확인
-        - 
-        
-        ```cpp
-        
-        ```
-        
-        - 전체 System간의 의존성 정보를 가져올 수 있음
-- NodeManager
+                ```
+                
+            - **CalculateIndegree( DependencyIDUnSetUnMap& DependencyIDData )**
+                - **DependencyIDData**
+                    - DependencyID ( 의존 당하는 쪽 ) 에 대한 
+                    DependentID ( 의존하는 쪽 ) 정보들
+                - **DependentIndegreeData**
+                    - DependentID( 의존하는 쪽 )의 Dependency ( 의존 당하는 쪽 ) 개수 정보
+                
+                ```cpp
+                using DependencyIDUnSetUnMap = MyUUIDUnMap< MyUUIDUnSet >;
+                using DependentIndegreeUnMap = MyUUIDUnMap< int >;
+                
+                SystemManager::DependentIndegreeUnMap SystemManager::CalculateIndegree( DependencyIDUnSetUnMap& DependencyIDData )
+                {
+                    DependentIndegreeUnMap DependentIndegreeData;
+                
+                    for ( auto& [ ID, IDData ] : DependencyIDData ) { DependentIndegreeData[ ID ] = 0; }
+                
+                    for ( auto& [ ID, IDData ] : DependencyIDData )
+                    {
+                        for ( auto& DependencyID : IDData )
+                        {
+                            DependentIndegreeData[ DependencyID ]++;
+                        }
+                    }
+                
+                    return DependentIndegreeData;
+                }
+                ```
+                
+- **NodeManager**
     - 주된 역할
         - Node 생성 및 삭제하는 역할
     - Node 관련
+        - ID와 Type을 통해 Node에 접근 가능
         - Entity를 통해서 Node를 생성
-            
-            ```cpp
-            template< typename T >
-                    MemoryPtr<T> NodeManager::Create( MemoryPtr<Entity>& Object )
-                    {
-                        bool Check = HasIDSet<T>();
-                        if ( !Check ) CreateIDSet<T>();
-            
-                        MemoryPtr<T> NodeMPtr = MemoryManager::GetHandle().Create<T>( Object->GetID() );
-                        
-                        Check = NodeMPtr->Check( Object );
-            
-                        if ( !Check ) 
-                        { 
-                            MemoryManager::GetHandle().Delete<T>( NodeMPtr );
-                            throw Except( " NodeManager | %s | This Entity has not components for this node ", __FUNCTION__, typeid( T ).name() );
-                        }
-            
-                        NodeMPtr->Init( Object );
-                        GetIDData<T>().insert( NodeMPtr->GetID() );
-                        m_INodeMPtrUnMap[ NodeMPtr->GetID() ] = NodeMPtr;
-            
-                        return NodeMPtr;
-                    }
-            ```
-            
             - 주어진 Entity를 통해서 Node 생성
             - Node에서 요구하는 Component 확인
                 - Check : false 일시
                     - 해당 Node를 다시 삭제
                 - Check : true 일시
                     - NodeData에 기입
-        - ID와 Type을 통해 Node에 접근 가능
-        - 전체 Type 정보를 가져올 수 있음
-            - 해당 Type에 전체 ID 정보를 가져올 수 있음
-                - 파일 저장 및 불러오기, UI에서 사용하기 위해서
+            - **template< typename T>
+            MemoryPtr<T> Create( MemoryPtr<Entity>& Object )**
+            
+            ```cpp
+            template< typename T >
+            MemoryPtr<T> NodeManager::Create( MemoryPtr<Entity>& Object )
+            {
+                bool Check = HasMPtrMap<T>();
+                if ( !Check ) CreateMPtrMap<T>();
+            
+                MemoryPtr<T> NodeMPtr = MemoryManager::GetHandle().Create<T>( Object->GetID() );
+                
+                Check = NodeMPtr->Check( Object );
+            
+                if ( !Check ) 
+                { 
+                    MemoryManager::GetHandle().Delete<T>( NodeMPtr );
+                    throw Except( " NodeManager | %s | This Entity has not components for this node ", __FUNCTION__, typeid( T ).name() );
+                }
+            
+                NodeMPtr->Init( Object );
+                GetIDData<T>().insert( NodeMPtr->GetID() );
+                GetMPtrMapData<T>()[ NodeMPtr->GetID() ] = NodeMPtr;
+            
+                return NodeMPtr;
+            }
+            ```
+            
 
 ## 💻 ECS 예시 코드
 
 ### 순환적 System의 구성
 
+- 실행 코드
+    
+    ```cpp
+    void Example()
+    {
+        MemoryManager::GetHandle().Init();
+    
+        // Initialization System Manager
+        SystemManager::GetHandle().Init();
+    
+        // Create each System using System Manager
+        MemoryPtr<ISystem> Render = SystemManager::GetHandle().Create<RenderSystem>();
+        MemoryPtr<ISystem> Move = SystemManager::GetHandle().Create<MoveSystem>();
+        MemoryPtr<ISystem> Collision = SystemManager::GetHandle().Create<CollisionSystem>();
+        MemoryPtr<ISystem> Physics = SystemManager::GetHandle().Create<PhysicsSystem>();
+        MemoryPtr<ISystem> Camera = SystemManager::GetHandle().Create<CameraSystem>();
+    
+        // Set dependency eacy system
+        SystemManager::GetHandle().SetDependency( Physics->GetID(), Collision->GetID() );
+        SystemManager::GetHandle().SetDependency( Collision->GetID(), Move->GetID() );
+        SystemManager::GetHandle().SetDependency( Move->GetID(), Render->GetID() );
+        SystemManager::GetHandle().SetDependency( Camera->GetID(), Render->GetID() );
+    
+        // This Dependency relation with RenderySystem and PhysicsSystem occur circlic graph
+        // So, this relation is deleted by system manager
+        SystemManager::GetHandle().SetDependency( Render->GetID(), Physics->GetID() ); 
+    }
+    ```
+    
+- 결과 콘솔
+    
+    ```bash
+    ...
+    **01:55:13:478 | WARN  This Graph is circlic
+    01:55:13:478 | INFO  Erase Dependency class RenderSystem for class PhysicsSystem**
+    ...
+    ```
+    
+    - 의존 당하는 System - 의존하는 System들
+        - Physics System - Collision System
+        - Collision System - Move System
+        - Move System - Render System
+        - Camera System - Render System
+        - Render System -
+            - 현재 상태에선 비순환 그래프 유지
+        - Physics System - Collision System, **Render System**
+        - Collision System - Move System
+        - Move System - Render System
+        - Camera System - Render System
+        - Render System -
+            - Physics System이 Render System에 의존할 경우, 
+            순환 그래프
+                - **01:55:13:478 | WARN  This Graph is circlic**
+            - Physics System에서 Render System에 대한 Dependency 제거
+                - **01:55:13:478 | INFO  Erase Dependency class RenderSystem for class PhysicsSystem**
+
 ### Render Node를 만들고 싶지만, 필요로 하는 Component들이 없네
 
+- 실행 코드
+    
+    ```cpp
+    void Example()
+    {
+        MemoryManager::GetHandle().Init();
+    
+        // Initialization System Manager
+        EntityManager::GetHandle().Init();
+        NodeManager::GetHandle().Init();
+        ComponentManager::GetHandle().Init();
+    
+        // Create Entity and Register in Main Scene
+        MemoryPtr<Entity> Object = EntityManager::GetHandle().Create();
+    
+        // Create Component
+        MemoryPtr<MeshComponent> Mesh = ComponentManager::GetHandle().Create<MeshComponent>();
+    
+        // Add Mesh Component and Transfrom Component to Object Entity
+        Object->AddComponent<MeshComponent>( Mesh->GetID() );
+    
+        // Create RenderNode
+        MemoryPtr<RenderNode> Node = NodeManager::GetHandle().Create<RenderNode>( Object );
+    
+        EntityManager::GetHandle().Destroy();
+        NodeManager::GetHandle().Destroy();
+        ComponentManager::GetHandle().Destroy();
+        MemoryManager::GetHandle().Destroy();
+    }
+    
+    // RenderNode class
+    class RenderNode : public INode
+    {
+        public :
+            RenderNode() {};
+            RenderNode( MyUUID ID ) : INode( ID ) {};
+            virtual ~RenderNode(){};
+    
+        public :
+            virtual bool Check( MemoryPtr<Entity>& Object )
+            {
+                if ( !Object->HasComponent<MeshComponent>() ) return false;
+                if ( !Object->HasComponent<TransformComponent>() ) return false;
+    
+                return true;
+            }
+    
+            virtual void Init( MemoryPtr<Entity>& Object )
+            {
+                if ( !Check( Object ) ) return;
+    
+                Mesh = ComponentManager::GetHandle().GetComponent<MeshComponent>( Object->GetComponent<MeshComponent>() );
+                Trans = ComponentManager::GetHandle().GetComponent<TransformComponent>( Object->GetComponent<TransformComponent>() );
+            }
+    
+        public :
+            MemoryPtr<MeshComponent> Mesh;
+            MemoryPtr<TransformComponent> Trans;
+    };
+    ```
+    
+- 결과 콘솔
+    
+    ```bash
+    ...
+    **02:03:01:812 | INFO  Instance | class RenderNode | 0000028478690C20 | Create new
+    02:03:01:812 | INFO  Instance | class RenderNode | 0000028478690C20 | Delete
+    02:03:01:812 | ERROR  NodeManager | NodeManager::Create | This Entity has not components for this node**
+    ...
+    ```
+    
+    - Render Node의 경우에는 Mesh Component와 Transform Component를 필요로 함
+    - 하지만, 해당 Entity의 경우 Mesh Component만 등록이 되어져있음
+
 ### Physics Node가 만들어질 때까지 기다리자
+
+- 실행 코드
+    
+    ```cpp
+    void Example()
+    {
+    		// ... //
+    
+    		// Create each System using System Manager
+        MemoryPtr<ISystem> Render = SystemManager::GetHandle().Create<RenderSystem>();
+        MemoryPtr<ISystem> Physics = SystemManager::GetHandle().Create<PhysicsSystem>();
+    
+    		// Create Scene
+        MemoryPtr<Scene> Main = SceneManager::GetHandle().Create();
+    
+    		// Create Entity and Register in Main Scene
+        MemoryPtr<Entity> Object = EntityManager::GetHandle().Create();
+    
+        // ... //
+    
+        // Create RenderNode through Object Entity
+        MemoryPtr<RenderNode> Node_1 = NodeManager::GetHandle().Create<RenderNode>( Object );
+        Main->RegisterNode<RenderNode>( Node_1->GetID() );
+    
+        // Register some system in Main Scene
+        Main->RegisterSystem( Render->GetID() );
+        Main->RegisterSystem( Physics->GetID() );
+    
+        // Frame in Scene
+        Main->Update( 0.0f );
+    
+        // Create PhysicsNode through Object Entity
+        MemoryPtr<PhysicsNode> Node_2 = NodeManager::GetHandle().Create<PhysicsNode>( Object );
+        Main->RegisterNode<PhysicsNode>( Node_2->GetID() );
+    
+        // Frame in Scene
+        Main->Update( 0.0f );
+    
+    	  // ... //
+    }
+    ```
+    
+- 결과 콘솔
+    
+    ```bash
+    ...
+    **02:15:43:771 | INFO  RenderSystem Update**
+    02:15:43:771 | WARN  MemoryManager | class PhysicsNode | There isn't existed this type of MemoryPool
+    02:15:43:771 | INFO  MemoryManager | class PhysicsNode | Create new pool ptr list
+    02:15:43:771 | INFO  MemoryManager | class PhysicsNode | Pool Ptr 000002735C2E1AC0 - Start Ptr 000002735C2E7A30 | Create new memory pool
+    02:15:43:771 | INFO  Instance | class PhysicsNode | 000002735C2E7A30 | Create new
+    **02:15:43:772 | INFO  PhysicsSystem Update
+    02:15:43:772 | INFO  RenderSystem Update**
+    ...
+    ```
+    
+    - Main Scene에는 Physics System과 Render System이 등록되어 있음
+    - 하지만, Physics System에서 사용할 수 있는 Node는 등록되어 있지않음
+    - Render System만 유효한 System이므로, Main에서 Update 진행
+    - Physics Node를 Main Scene에 추가할 시, Physics System이 유효해지면서 Update 진행
+    
 
 ## 💡 성장 경험
 
