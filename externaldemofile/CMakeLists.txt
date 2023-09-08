@@ -114,7 +114,7 @@ SET( DEMO_ARC_DIR ${DEMOFILE_DIR}/build/arc )
 EXTERNALPROJECT_ADD(
 	ECSProject_demo
 	GIT_REPOSITORY GIT_REPOSITORY https://github.com/Winteradio/ECS-with-Scene-and-Node.git
-	GIT_TAG "v1.1.1"
+	GIT_TAG "v1.2.0"
 
 	PREFIX ${DEMO_PREFIX_DIR}/ECSProject
 

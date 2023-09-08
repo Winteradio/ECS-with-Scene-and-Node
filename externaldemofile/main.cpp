@@ -2,16 +2,10 @@
 #include <MemoryProject/MemoryManager.h>
 #include <ECSProject/Manager.h>
 #include <ECSProject/MyUUID.h>
-#include <iostream>
-#include <map>
-#include <string>
 
 #include "SystemList.h"
 #include "ComponentList.h"
 #include "NodeList.h"
-
-#ifdef _WIN32
-#include <windows.h>
 
 void Example()
 {
@@ -79,9 +73,14 @@ void Example()
     MemoryManager::GetHandle().Destroy();
 }
 
+#ifdef _WIN32
+#pragma comment(linker, "/entry:WinMainCRTStartup")
+#pragma comment(linker, "/subsystem:console")
+
 int CALLBACK WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
 {
     Log::Info(" Windows ");
+    Log::Print();
 #elif __linux__
 int main()
 {

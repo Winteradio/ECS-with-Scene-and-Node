@@ -9,7 +9,6 @@ SET( PROJECT_NAME "ECSProject" )
 ## Project name
 PROJECT( ${PROJECT_NAME} )
 
-SET(CMAKE_BUILD_TYPE Debug)
 if( MSVC )
 	MESSAGE( STATUS "Compiler is ${CMAKE_CXX_COMPILER_ID}")
     # Use multi-process debugging
