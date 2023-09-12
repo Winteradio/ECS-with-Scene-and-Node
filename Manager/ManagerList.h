@@ -1,5 +1,5 @@
-#ifndef __MANAGER_H__
-#define __MANAGER_H__
+#ifndef __MANAGERLIST_H__
+#define __MANAGERLIST_H__
 
 #include "ComponentManager.h"
 #include "EntityManager.h"
@@ -7,4 +7,4 @@
 #include "SceneManager.h"
 #include "SystemManager.h"
 
-#endif // __MANAGER_H__
+#endif // __MANAGERLIST_H__

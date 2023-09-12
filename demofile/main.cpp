@@ -1,4 +1,4 @@
-#include "Manager.h"
+#include "ManagerList.h"
 #include "MyUUID.h"
 
 #include <LogProject/Log.h>

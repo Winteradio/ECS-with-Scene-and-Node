@@ -22,6 +22,7 @@ class SystemManager
 
         void Init();
         void Destroy();
+        void Clear();
 
     public :
         template< typename T >

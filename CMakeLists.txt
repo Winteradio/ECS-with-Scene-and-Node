@@ -51,13 +51,14 @@ LIST( APPEND SOURCE_DIR
     ${INTERFACE_DIR}/Entity.h ${INTERFACE_DIR}/Entity.cpp
     ${INTERFACE_DIR}/Scene.h ${INTERFACE_DIR}/Scene.cpp
 
+    ${MANAGER_DIR}/ManagerList.h
     ${MANAGER_DIR}/ComponentManager.h ${MANAGER_DIR}/ComponentManager.cpp
     ${MANAGER_DIR}/EntityManager.h ${MANAGER_DIR}/EntityManager.cpp
     ${MANAGER_DIR}/NodeManager.h ${MANAGER_DIR}/NodeManager.cpp
     ${MANAGER_DIR}/SceneManager.h ${MANAGER_DIR}/SceneManager.cpp
     ${MANAGER_DIR}/SystemManager.h ${MANAGER_DIR}/SystemManager.cpp
 
-    ${UTILS_DIR}/Utils.h
+    ${UTILS_DIR}/ECSUtils.h
 
     ${UUID_DIR}/MyUUID.h ${UUID_DIR}/MyUUID.cpp
 

@@ -1,5 +1,5 @@
-#ifndef __UTILS_H__
-#define __UTILS_H__
+#ifndef __ECSPROJECTUTILS_H__
+#define __ECSPROJECTUTILS_H__
 
 #include <algorithm>
 #include <iostream>
@@ -13,4 +13,4 @@
 #include <utility>
 #include <vector>
 
-#endif // __UTILS_H__
+#endif // __ECSPROJECTUTILS_H__

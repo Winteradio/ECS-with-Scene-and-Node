@@ -20,6 +20,7 @@ class SceneManager
 
         void Init();
         void Destroy();
+        void Clear();
 
     public :
         MemoryPtr<Scene> Create();

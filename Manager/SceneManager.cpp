@@ -5,15 +5,15 @@ SceneManager::~SceneManager() {}
 
 void SceneManager::Init()
 {
+    m_SceneMPtrData.clear();
+    m_SceneIndexData.clear();
+    
     Log::Info(" Initialize Scene Manager ");
 }
 
 void SceneManager::Destroy()
 {
-    m_SceneMPtrData.clear();
-    m_SceneIndexData.clear();
-    
-    Log::Info(" Destroy Scene Manager ");
+   Log::Info(" Destroy Scene Manager ");
 }
 
 MemoryPtr<Scene> SceneManager::Create()
@@ -23,7 +23,7 @@ MemoryPtr<Scene> SceneManager::Create()
 
 MemoryPtr<Scene> SceneManager::Create( std::string Name )
 {
-    int Index = static_cast<int>( GetCount() );
+    int Index = static_cast<int>( GetCount() + 1 );
 
     bool Check = HasScene( Index );
 

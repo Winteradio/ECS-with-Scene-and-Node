@@ -21,6 +21,7 @@ class ComponentManager
 
         void Init();
         void Destroy();
+        void Clear();
 
     public :
         template< typename T, typename... Args >
