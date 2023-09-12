@@ -62,7 +62,6 @@ class Scene
         void ClearSequence( ISystemQueue& Sequence );
         void UpdateSequence();
 
-
     public :
         TypeUnSet& GetNodeTypeData();
 

@@ -1,6 +1,6 @@
 #include <LogProject/Log.h>
 #include <MemoryProject/MemoryManager.h>
-#include <ECSProject/Manager.h>
+#include <ECSProject/ManagerList.h>
 #include <ECSProject/MyUUID.h>
 
 #include "SystemList.h"

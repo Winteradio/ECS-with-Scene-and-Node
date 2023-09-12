@@ -43,7 +43,7 @@ LIST(APPEND SRCS
     ${MANAGER_DIR}/SceneManager.h ${MANAGER_DIR}/SceneManager.cpp
     ${MANAGER_DIR}/SystemManager.h ${MANAGER_DIR}/SystemManager.cpp
 
-    ${UTILS_DIR}/Utils.h
+    ${UTILS_DIR}/ECSUtils.h
 
     ${UUID_DIR}/MyUUID.h ${UUID_DIR}/MyUUID.cpp
 )
