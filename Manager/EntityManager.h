@@ -19,6 +19,7 @@ class EntityManager
 
         void Init();
         void Destroy();
+        void Clear();
 
         MemoryPtr<Entity> Create();
         MemoryPtr<Entity> Create( std::string Name );

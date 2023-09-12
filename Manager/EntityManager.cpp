@@ -6,14 +6,14 @@ EntityManager::~EntityManager() {}
 
 void EntityManager::Init()
 {
-    Log::Info(" Initialize Entity Manager ");
+    m_EntityMPtrData.clear();
+    m_EntityIDData.clear();
+
+    Log::Info(" Initialize Entity Manager ");    
 }
 
 void EntityManager::Destroy()
 {
-    m_EntityMPtrData.clear();
-    m_EntityIDData.clear();
-
     Log::Info(" Destroy Entity Manager ");
 }
 
