@@ -23,7 +23,7 @@ MemoryPtr<Scene> SceneManager::Create()
 
 MemoryPtr<Scene> SceneManager::Create( std::string Name )
 {
-    int Index = static_cast<int>( GetCount() + 1 );
+    int Index = static_cast<int>( 1 + GetCount() );
 
     bool Check = HasScene( Index );
 
