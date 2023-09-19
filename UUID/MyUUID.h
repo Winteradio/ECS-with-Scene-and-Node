@@ -18,6 +18,7 @@ class MyUUID
 
 	public :
 		void Init();
+		void Clear();
 		std::string& GetString();
 		std::string GetString() const;
 		bool Empty();

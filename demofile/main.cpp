@@ -10,6 +10,8 @@
 
 void Example()
 {
+    Log::Info("%zu",sizeof( Scene ) );
+
     MemoryManager::GetHandle().Init();
 
     // Initialization each Manager

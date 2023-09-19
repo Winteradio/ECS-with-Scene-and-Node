@@ -1,6 +1,6 @@
 #include "MyUUID.h"
 
-MyUUID::MyUUID() { Init(); }
+MyUUID::MyUUID() {}
 
 MyUUID::MyUUID( std::string ID )
 {
@@ -47,6 +47,8 @@ void MyUUID::Init()
 
 	m_ID = std::string( UuidChar );
 }
+
+void MyUUID::Clear() { m_ID.clear(); }
 
 bool MyUUID::Empty()
 {

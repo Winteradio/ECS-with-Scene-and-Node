@@ -33,7 +33,7 @@ MemoryPtr<Scene> SceneManager::Create( std::string Name )
     }
 
     m_SceneIndexData.insert( Index );
-    m_SceneMPtrData[ Index ] = MemoryManager::GetHandle().Create<Scene>( Index, Name );
+    m_SceneMPtrData[ Index ] = MemoryManager::GetHandle().CreateOne<Scene>( Index, Name );
     
     return GetScene( Index );
 }

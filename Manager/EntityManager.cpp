@@ -20,12 +20,14 @@ void EntityManager::Destroy()
 MemoryPtr<Entity> EntityManager::Create()
 {
     MyUUID ID;
+    ID.Init();
     return Create( ID, "Default" );
 }
 
 MemoryPtr<Entity> EntityManager::Create( std::string Name )
 {
     MyUUID ID;
+    ID.Init();
     return Create( ID, Name );
 }
 

@@ -29,6 +29,7 @@ class SystemManager
         MemoryPtr<ISystem> Create()
         {
             MyUUID ID;
+            ID.Init();
 
             return Create<T>( ID );
         }
