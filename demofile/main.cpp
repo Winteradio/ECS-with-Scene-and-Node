@@ -1,105 +1,13 @@
-#include "ManagerList.h"
-#include "MyUUID.h"
+#include <Log/include/Log.h>
+#include <Log/include/LogPlatform.h>
 
-#include <LogProject/Log.h>
-#include <MemoryProject/MemoryManager.h>
-
-#include "SystemList.h"
-#include "ComponentList.h"
-#include "NodeList.h"
-
-void Example()
+int MAIN()
 {
-    MemoryManager::GetHandle().Init();
+    Log::Init(1024, Log::Enum::eMode_Print, Log::Enum::eLevel_Type | Log::Enum::eLevel_Time);
 
-    // Initialization each Manager
-    SceneManager::GetHandle().Init();
-    SystemManager::GetHandle().Init();
-    EntityManager::GetHandle().Init();
-    NodeManager::GetHandle().Init();
-    ComponentManager::GetHandle().Init();
+    LOGINFO() << "Hello World!";
 
-    /*
-    // Create each System using System Manager
-    MemoryPtr<ISystem> Render = SystemManager::GetHandle().Create<RenderSystem>();
-    MemoryPtr<ISystem> Move = SystemManager::GetHandle().Create<MoveSystem>();
-    MemoryPtr<ISystem> Collision = SystemManager::GetHandle().Create<CollisionSystem>();
-    MemoryPtr<ISystem> Physics = SystemManager::GetHandle().Create<PhysicsSystem>();
-    MemoryPtr<ISystem> Camera = SystemManager::GetHandle().Create<CameraSystem>();
+    system("pause");
 
-    // Set dependency eacy system
-    SystemManager::GetHandle().SetDependency( Physics->GetID(), Collision->GetID() );
-    SystemManager::GetHandle().SetDependency( Collision->GetID(), Move->GetID() );
-    SystemManager::GetHandle().SetDependency( Move->GetID(), Render->GetID() );
-    SystemManager::GetHandle().SetDependency( Camera->GetID(), Render->GetID() );
-
-    // Create Scene
-    MemoryPtr<Scene> Main = SceneManager::GetHandle().Create();
-    */
-
-    MemoryPtr<Scene> Main = MemoryManager::GetHandle().Create<Scene>();
-
-    // Create Entity and Register in Main Scene
-    MemoryPtr<Entity> Object = EntityManager::GetHandle().Create();
-
-    // Create Component
-    MemoryPtr<MeshComponent> Mesh = ComponentManager::GetHandle().Create<MeshComponent>();
-    MemoryPtr<TransformComponent> Trans = ComponentManager::GetHandle().Create<TransformComponent>();
-
-    // Add Mesh Component and Transfrom Component to Object Entity
-    Object->AddComponent<MeshComponent>( Mesh->GetID() );
-    Object->AddComponent<TransformComponent>( Trans->GetID() );
-
-    /*
-    // Create RenderNode through Object Entity
-    MemoryPtr<RenderNode> Node_1 = NodeManager::GetHandle().Create<RenderNode>( Object );
-    Main->RegisterNode<RenderNode>( Node_1->GetID() );
-
-    // Register some system in Main Scene
-    Main->RegisterSystem( Render->GetID() );
-    Main->RegisterSystem( Physics->GetID() );
-
-    // Frame in Scene
-    Main->Update( 0.0f );
-
-    // Create PhysicsNode through Object Entity
-    MemoryPtr<PhysicsNode> Node_2 = NodeManager::GetHandle().Create<PhysicsNode>( Object );
-    Main->RegisterNode<PhysicsNode>( Node_2->GetID() );
-
-    // Frame in Scene
-    Main->Update( 0.0f );
-    */
-    SceneManager::GetHandle().Destroy();
-    SystemManager::GetHandle().Destroy();
-    EntityManager::GetHandle().Destroy();
-    NodeManager::GetHandle().Destroy();
-    ComponentManager::GetHandle().Destroy();
-
-    MemoryManager::GetHandle().Destroy();
-}
-
-#ifdef _WIN32
-#pragma comment(linker, "/entry:WinMainCRTStartup")
-#pragma comment(linker, "/subsystem:console")
-
-int CALLBACK WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
-{
-    Log::Info(" Windows ");
-#elif __linux__
-int main()
-{
-    Log::Info(" Linux ");
-#endif
-    try
-    {
-        Example();
-    }
-    catch ( const Except& e )
-    {
-        Log::Error( e.what() );
-    }
-
-    Log::Print();
-    
     return 0;
-};
+}

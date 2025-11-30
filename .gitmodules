@@ -1,0 +1,12 @@
+[submodule "external/Memory"]
+	path = external/Memory
+	url = https://github.com/Winteradio/MemoryPool.git
+[submodule "external/Reflection"]
+	path = external/Reflection
+	url = https://github.com/Winteradio/Reflection.git
+[submodule "external/Log"]
+	path = external/Log
+	url = https://github.com/Winteradio/Log.git
+[submodule "external/CMake"]
+	path = external/CMake
+	url = https://github.com/Winteradio/CMake.git
