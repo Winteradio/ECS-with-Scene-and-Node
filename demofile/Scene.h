@@ -8,6 +8,9 @@
 
 class Scene
 {
+    using TypeMyUUIDUnSetUnMap = std::unordered_map< const std::type_info*, MyUUIDUnSet >;
+    using TypeUnSet = std::unordered_set< const std::type_info* >;
+
     public :
         Scene();
         Scene( std::string Name );

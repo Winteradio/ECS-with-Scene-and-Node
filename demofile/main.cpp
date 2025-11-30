@@ -10,8 +10,6 @@
 
 void Example()
 {
-    Log::Info("%zu",sizeof( Scene ) );
-
     MemoryManager::GetHandle().Init();
 
     // Initialization each Manager
@@ -21,6 +19,7 @@ void Example()
     NodeManager::GetHandle().Init();
     ComponentManager::GetHandle().Init();
 
+    /*
     // Create each System using System Manager
     MemoryPtr<ISystem> Render = SystemManager::GetHandle().Create<RenderSystem>();
     MemoryPtr<ISystem> Move = SystemManager::GetHandle().Create<MoveSystem>();
@@ -36,6 +35,9 @@ void Example()
 
     // Create Scene
     MemoryPtr<Scene> Main = SceneManager::GetHandle().Create();
+    */
+
+    MemoryPtr<Scene> Main = MemoryManager::GetHandle().Create<Scene>();
 
     // Create Entity and Register in Main Scene
     MemoryPtr<Entity> Object = EntityManager::GetHandle().Create();
@@ -48,6 +50,7 @@ void Example()
     Object->AddComponent<MeshComponent>( Mesh->GetID() );
     Object->AddComponent<TransformComponent>( Trans->GetID() );
 
+    /*
     // Create RenderNode through Object Entity
     MemoryPtr<RenderNode> Node_1 = NodeManager::GetHandle().Create<RenderNode>( Object );
     Main->RegisterNode<RenderNode>( Node_1->GetID() );
@@ -65,8 +68,7 @@ void Example()
 
     // Frame in Scene
     Main->Update( 0.0f );
-
-
+    */
     SceneManager::GetHandle().Destroy();
     SystemManager::GetHandle().Destroy();
     EntityManager::GetHandle().Destroy();

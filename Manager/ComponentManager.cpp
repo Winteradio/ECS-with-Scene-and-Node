@@ -6,7 +6,6 @@ ComponentManager::~ComponentManager() {}
 
 void ComponentManager::Init()
 {
-    m_IComponentTypeData.clear();
     m_IComponentMPtrData.clear();
     m_IComponentIDData.clear();
 
@@ -18,7 +17,16 @@ void ComponentManager::Destroy()
     Log::Info(" Destroy Component Manager ");
 }
 
-ComponentManager::TypeUnSet& ComponentManager::GetTypeData(){ return m_IComponentTypeData; }
+ComponentManager::TypeUnSet& ComponentManager::GetTypeData()
+{ 
+    TypeUnSet ComponentTypeData;
+
+    for ( auto [ Type, IDSet ] : m_IComponentIDData )
+    {
+        ComponentTypeData.insert( Type );
+    }
+    return ComponentTypeData; 
+}
 
 MyUUIDUnSet& ComponentManager::GetIDData( const std::type_info* Type )
 {
@@ -28,16 +36,14 @@ MyUUIDUnSet& ComponentManager::GetIDData( const std::type_info* Type )
 }
 
 bool ComponentManager::HasIDSet( const std::type_info* Type )
-{
-    auto ITR = m_IComponentTypeData.find( Type );
-    if ( ITR != m_IComponentTypeData.end() ) return true;
+{   
+    auto ITR = m_IComponentIDData.find( Type );
+    if ( ITR != m_IComponentIDData.end() ) return true;
     else return false;
 }
 
 void ComponentManager::CreateIDSet( const std::type_info* Type )
 {
-    m_IComponentTypeData.insert( Type );
-
     m_IComponentIDData[ Type ] = MyUUIDUnSet();
     m_IComponentIDData[ Type ].clear();
 }

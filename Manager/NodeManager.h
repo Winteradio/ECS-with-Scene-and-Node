@@ -116,7 +116,6 @@ class NodeManager
         static NodeManager m_NodeManager;
         TypeNodeMPtrUnMap m_INodeMPtrData;
         TypeMyUUIDUnSetUnMap m_INodeIDData;
-        TypeUnSet m_INodeTypeData;
 };
 
 #endif // __NODEMANAGER_H__

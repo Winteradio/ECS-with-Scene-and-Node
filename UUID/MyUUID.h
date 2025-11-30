@@ -49,4 +49,7 @@ using MyUUIDUnSet = std::unordered_set< MyUUID, MyUUID::HashFunction >;
 using MyUUIDQueue = std::queue< MyUUID >;
 using MyUUIDVector = std::vector< MyUUID >;
 
+using TypeMyUUIDUnSetUnMap = std::unordered_map< const std::type_info*, MyUUIDUnSet >;
+using TypeUnSet = std::unordered_set< const std::type_info* >;
+
 #endif // __MYUUID_H__

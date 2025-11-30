@@ -11,4 +11,6 @@ class IComponent : public IObject
         virtual ~IComponent(){};
 };
 
+using MyUUIDIComponentMPtrUnMap = MyUUIDUnMap< MemoryPtr<IComponent> >;
+
 #endif // __ICOMPONENT_H__

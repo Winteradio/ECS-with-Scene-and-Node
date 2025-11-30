@@ -8,10 +8,6 @@
 
 class ComponentManager
 {
-    using MyUUIDIComponentMPtrUnMap = MyUUIDUnMap< MemoryPtr<IComponent> >;
-    using TypeMyUUIDUnSetUnMap = std::unordered_map< const std::type_info*, MyUUIDUnSet >;
-    using TypeUnSet = std::unordered_set< const std::type_info* >;
-
     private :
         ComponentManager();
         ~ComponentManager();
@@ -104,7 +100,6 @@ class ComponentManager
         static ComponentManager m_ComponentManager;
         MyUUIDIComponentMPtrUnMap m_IComponentMPtrData;
         TypeMyUUIDUnSetUnMap m_IComponentIDData;
-        TypeUnSet m_IComponentTypeData;
 };
 
 #endif // __COMPONENTMANAGER_H__

@@ -7,6 +7,7 @@
 
 class Entity : public IObject
 {
+	using TypeUnSet = std::unordered_set< const std::type_info* >;
 	using TypeMyUUIDUnMap = std::unordered_map< const std::type_info*, MyUUID >;
 
     public :
@@ -17,45 +18,29 @@ class Entity : public IObject
         virtual ~Entity();
 
 		template< typename T >
-		void AddComponent( MyUUID ID )
-		{
-			bool Result = HasComponent<T>();
-			if ( !Result ) m_ComponentIDData[ &typeid( T ) ] = ID;
-		}
+		void AddComponent( MyUUID ID ) { return AddComponent( &typeid( T ), ID ); }
 
 		template< typename T >
-		void RemoveComponent()
-		{
-			bool Result = HasComponent<T>();
-			if ( Result ) m_ComponentIDData.erase( &typeid( T ) );
-		}
+		void RemoveComponent() { return RemoveComponent( &typeid( T ) ); }
 
 		template< typename T >
-		MyUUID GetComponent()
-		{
-			bool Result = HasComponent<T>();
-
-			if ( !Result )
-			{
-				throw Except( " Entity | %s | This Entity has not type of %s component ", __FUNCTION__, typeid( T ).name() );
-			}
-
-			return m_ComponentIDData[ &typeid( T ) ];
-		}
+		MyUUID GetComponent() { return GetComponent( &typeid( T ) ); }
 
 		template< typename T >
-		bool HasComponent()
-		{
-			auto ITR = m_ComponentIDData.find( &typeid( T ) );
-			if ( ITR != m_ComponentIDData.end() ) { return true; }
-			else { return false; }
-		}
+		bool HasComponent() { return HasComponent( &typeid( T ) ); }
 
 	public :
-		void SetName( std::string Name );
+		void AddComponent( const std::type_info* Type, MyUUID ID );
+		void RemoveComponent( const std::type_info* Type );
+		MyUUID GetComponent( const std::type_info* Type );
+		bool HasComponent( const std::type_info* Type );
 
+	public :
+		TypeUnSet GetTypeData();
 		TypeMyUUIDUnMap& GetIDData();
 		std::string& GetName();
+
+		void SetName( std::string Name );
 
 	private :
 		TypeMyUUIDUnMap m_ComponentIDData;
