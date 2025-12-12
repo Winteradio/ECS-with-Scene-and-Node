@@ -12,7 +12,7 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 # ------ Create the library ------ #
 include(${CMAKE_SOURCE_DIR}/external/CMake/Library.cmake)
 
-option(BUILD_SHARED_LIBS "Build a shared library instead of a static one" OFF)
+set(LIBRARY_TYPE "SHARED" CACHE STRING "Build a shared library instead of a static one")
 
 set(MAIN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(HEADER_DIR ${MAIN_DIR}/include)
@@ -24,13 +24,15 @@ set(INCLUDE_DIR_LIST
 )
 
 set(HEADER_LIST
+    ${HEADER_DIR}/Utils/ECSUtils.h
 )
 
 set(SOURCE_LIST
+    ${SOURCE_DIR}/Utils/ECSUtils.cpp
 )
 
 create_library(
-    SHARED_LIBRARY ${BUILD_SHARED_LIBS}
+    LIBRARY_TYPE ${LIBRARY_TYPE}
     TARGET_NAME ${PROJECT_NAME}
     PUBLIC_HEADERS ${HEADER_LIST}
     PRIVATE_SOURCES ${SOURCE_LIST}
@@ -38,8 +40,7 @@ create_library(
 
 install_library(
     TARGET_NAME ${PROJECT_NAME}
-    PUBLIC_HEADERS ${HEADER_LIST}
-    PUBLIC_INCLUDE_DIRS ${INCLUDE_DIR_LIST}
+    INCLUDE_DIRS ${INCLUDE_DIR_LIST}
 )
 
 # ------ Set the project options ------ #
@@ -58,6 +59,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/external/Memory Memory)
 
 set(REFLECTION_DEMO_FILE OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/Reflection Reflection)
+
+set(CONTAINER_DEMO_FILE ON)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/Container Container)
 
 set(LOG_DEMO_FILE OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/Log Log)
