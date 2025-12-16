@@ -17,18 +17,50 @@ set(LIBRARY_TYPE "SHARED" CACHE STRING "Build a shared library instead of a stat
 set(MAIN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(HEADER_DIR ${MAIN_DIR}/include)
 set(SOURCE_DIR ${MAIN_DIR}/src)
-set(EXTERNAL_DIR ${MAIN_DIR}/external)
+set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 
 set(INCLUDE_DIR_LIST
     ${MAIN_DIR}/include
 )
 
 set(HEADER_LIST
-    ${HEADER_DIR}/Utils/ECSUtils.h
+    ${HEADER_DIR}/Object/Object.h
+    ${HEADER_DIR}/Object/Data.h
+    ${HEADER_DIR}/Object/Entity.h
+    ${HEADER_DIR}/Object/Scene.h
+    ${HEADER_DIR}/Object/System.h
+
+    ${HEADER_DIR}/Container/BaseContainer.h
+    ${HEADER_DIR}/Container/ComponentContainer.h
+    ${HEADER_DIR}/Container/EntityContainer.h
+    ${HEADER_DIR}/Container/NodeContainer.h
+
+    ${HEADER_DIR}/Graph/Graph.h
+    
+    ${HEADER_DIR}/Registry/ContainerRegistry.h
+    ${HEADER_DIR}/Registry/ComponentRegistry.h
+    ${HEADER_DIR}/Registry/NodeRegistry.h
+    ${HEADER_DIR}/Registry/SystemRegistry.h
+
+    ${HEADER_DIR}/UUID/UUID.h
+
+    ${HEADER_DIR}/TimeStep.h
+    ${HEADER_DIR}/Utils.h
+    ${HEADER_DIR}/ECS.h
 )
 
 set(SOURCE_LIST
-    ${SOURCE_DIR}/Utils/ECSUtils.cpp
+    ${SOURCE_DIR}/Object/Object.cpp
+    ${SOURCE_DIR}/Object/Entity.cpp
+    ${SOURCE_DIR}/Object/Scene.cpp
+    ${SOURCE_DIR}/Object/System.cpp
+
+    ${SOURCE_DIR}/Container/BaseContainer.cpp
+    ${SOURCE_DIR}/Container/EntityContainer.cpp
+
+    ${SOURCE_DIR}/Registry/SystemRegistry.cpp
+
+    ${SOURCE_DIR}/UUID/UUID.cpp
 )
 
 create_library(
@@ -49,7 +81,7 @@ include(${CMAKE_SOURCE_DIR}/external/CMake/Project.cmake)
 project_options()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${EXTERNAL_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC MemoryProject ReflectionProject LogProject Rpcrt4.lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC MemoryProject ReflectionProject LogProject)
 
 # ------ Add the sub modules ------ #
 message(STATUS "- Add the Sub Project")
@@ -60,7 +92,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/external/Memory Memory)
 set(REFLECTION_DEMO_FILE OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/Reflection Reflection)
 
-set(CONTAINER_DEMO_FILE ON)
+set(CONTAINER_DEMO_FILE OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/Container Container)
 
 set(LOG_DEMO_FILE OFF)

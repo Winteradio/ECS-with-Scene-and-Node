@@ -23,13 +23,17 @@ set(MAIN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(HEADER_LIST 
     ${MAIN_DIR}/../include
     ${MAIN_DIR}/../external
+    ${MAIN_DIR}
 )
 
 target_sources(${PROJECT_NAME} PRIVATE
     ${MAIN_DIR}/main.cpp
+    ${MAIN_DIR}/ComponentList.h
+    ${MAIN_DIR}/NodeList.h
+    ${MAIN_DIR}/SystemList.h
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${HEADER_LIST})
-target_link_libraries(${PROJECT_NAME} PUBLIC MemoryProject ReflectionProject LogProject)
+target_link_libraries(${PROJECT_NAME} PUBLIC ECSProject MemoryProject ReflectionProject LogProject)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
