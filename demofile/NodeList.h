@@ -1,92 +1,40 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
-#include "INode.h"
 #include "ComponentList.h"
+#include <Memory/include/Memory.h>
 
-class RenderNode : public INode
+struct RenderNode : ECS::Node::Base
 {
-    public :
-        RenderNode() {};
-        RenderNode( MyUUID ID ) : INode( ID ) {};
-        virtual ~RenderNode(){};
+    Memory::ObjectPtr<ResourceComponent> resource;
+    Memory::ObjectPtr<TransformComponent> transform;
+    Memory::ObjectPtr<ColorComponent> color;
 
-    public :
-        virtual bool Check( MemoryPtr<Entity>& Object )
-        {
-            if ( !Object->HasComponent<MeshComponent>() ) return false;
-            if ( !Object->HasComponent<TransformComponent>() ) return false;
-
-            return true;
-        }
-
-        virtual void Init( MemoryPtr<Entity>& Object )
-        {
-            if ( !Check( Object ) ) return;
-
-            Mesh = ComponentManager::GetHandle().GetComponent<MeshComponent>( Object->GetComponent<MeshComponent>() );
-            Trans = ComponentManager::GetHandle().GetComponent<TransformComponent>( Object->GetComponent<TransformComponent>() );
-        }
-
-    public :
-        MemoryPtr<MeshComponent> Mesh;
-        MemoryPtr<TransformComponent> Trans;
+    RenderNode(const Memory::ObjectPtr<ResourceComponent> resource
+        , const Memory::ObjectPtr<TransformComponent> transform
+        , const Memory::ObjectPtr<ColorComponent> color)
+        : resource(resource)
+        , transform(transform)
+        , color(color)
+    {}
 };
 
-class CameraNode : public INode
+struct CameraNode : ECS::Node::Base
 {
-    public :
-        CameraNode() {};
-        CameraNode( MyUUID ID ) : INode( ID ) {};
-        virtual ~CameraNode(){};
-
-    public :
-        virtual bool Check( MemoryPtr<Entity>& Object )
-        {
-            return true;
-        }
-
-        virtual void Init( MemoryPtr<Entity>& Object )
-        {
-        }
-
-    public :
+    Memory::ObjectPtr<CameraComponent> camera;
+    Memory::ObjectPtr<TransformComponent> transform;
 };
 
-class CollisionNode : public INode
+struct CollisionNode : ECS::Node::Base
 {
-    public :
-        CollisionNode() {};
-        CollisionNode( MyUUID ID ) : INode( ID ) {};
-        virtual ~CollisionNode(){};
-
-    public :
-        virtual bool Check( MemoryPtr<Entity>& Object )
-        {
-            return true;
-        }
-
-        virtual void Init( MemoryPtr<Entity>& Object )
-        {
-        }
+    Memory::ObjectPtr<MeshComponent> mesh;
+    Memory::ObjectPtr<TransformComponent> transform;
 };
 
-class PhysicsNode : public INode
+struct PhysicsNode : ECS::Node::Base
 {
-    public :
-        PhysicsNode() {};
-        PhysicsNode( MyUUID ID ) : INode( ID ) {};
-        virtual ~PhysicsNode(){};
-
-    public :
-        virtual bool Check( MemoryPtr<Entity>& Object )
-        {
-            return true;
-        }
-
-        virtual void Init( MemoryPtr<Entity>& Object )
-        {
-        }
+    Memory::ObjectPtr<VelocityComponent> velocity;
+    Memory::ObjectPtr<TransformComponent> transform;
 };
 
 #endif // __NODE_H__

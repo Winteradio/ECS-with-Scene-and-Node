@@ -1,174 +1,108 @@
-# ------ Set Options for Projects --------------- #
-MESSAGE( STATUS "Set Options for Project")
+set(PROJECT_NAME ECSProject)
 
-## CMake minimun version required
-CMAKE_MINIMUM_REQUIRED( VERSION 3.20 )
-
-## Make Project Name
-SET( PROJECT_NAME "ECSProject" )
-## Project name
-PROJECT( ${PROJECT_NAME} )
-
-if( MSVC )
-	MESSAGE( STATUS "Compiler is ${CMAKE_CXX_COMPILER_ID}")
-    # Use multi-process debugging
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi /MP")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi /MP")
-
-    # Use Windbg as the debugger
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DEBUG:FULL")
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /DEBUG:FULL")
-    set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} /DEBUG /INCREMENTAL:NO")
+if (TARGET ${PROJECT_NAME})
+    message(STATUS "# ${PROJECT_NAME} target is already defined. Skipping build configuration.")
+    
+    return()
 endif()
 
-## Set CXX Compiler Version
-SET( CMAKE_CXX_STANDARD 17 )
+cmake_minimum_required(VERSION 3.20)
+project(${PROJECT_NAME} LANGUAGES CXX)
 
-MESSAGE( STATUS "Setting Done")
-# ----------------------------------------------- #
+# ------ Create the library ------ #
+include(${CMAKE_SOURCE_DIR}/external/CMake/Library.cmake)
 
+set(LIBRARY_TYPE "SHARED" CACHE STRING "Build a shared library instead of a static one")
 
+set(MAIN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(HEADER_DIR ${MAIN_DIR}/include)
+set(SOURCE_DIR ${MAIN_DIR}/src)
+set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 
-# ------ Set Files ------------------------------ #
-MESSAGE( STATUS "Set Source File")
-
-SET( MAIN_DIR ${CMAKE_SOURCE_DIR} )
-SET( INTERFACE_DIR ${MAIN_DIR}/Interface )
-SET( MANAGER_DIR ${MAIN_DIR}/Manager )
-SET( UTILS_DIR ${MAIN_DIR}/Utils )
-SET( UUID_DIR ${MAIN_DIR}/UUID )
-SET( DEMOFILE_DIR ${MAIN_DIR}/demofile )
-
-SET( SOURCE_DIR )
-SET( FOLDER_DIR )
-
-## Source Files
-LIST( APPEND SOURCE_DIR
-
-    ${INTERFACE_DIR}/IComponent.h
-    ${INTERFACE_DIR}/INode.h
-    ${INTERFACE_DIR}/ISystem.h
-    ${INTERFACE_DIR}/Entity.h ${INTERFACE_DIR}/Entity.cpp
-    ${INTERFACE_DIR}/Scene.h ${INTERFACE_DIR}/Scene.cpp
-
-    ${MANAGER_DIR}/ManagerList.h
-    ${MANAGER_DIR}/ComponentManager.h ${MANAGER_DIR}/ComponentManager.cpp
-    ${MANAGER_DIR}/EntityManager.h ${MANAGER_DIR}/EntityManager.cpp
-    ${MANAGER_DIR}/NodeManager.h ${MANAGER_DIR}/NodeManager.cpp
-    ${MANAGER_DIR}/SceneManager.h ${MANAGER_DIR}/SceneManager.cpp
-    ${MANAGER_DIR}/SystemManager.h ${MANAGER_DIR}/SystemManager.cpp
-
-    ${UTILS_DIR}/ECSUtils.h
-
-    ${UUID_DIR}/MyUUID.h ${UUID_DIR}/MyUUID.cpp
-
-    )
-
-## Header Files
-LIST( APPEND FOLDER_DIR
-
-    ${INTERFACE_DIR}
-    ${MANAGER_DIR}
-    ${UTILS_DIR}
-    ${UUID_DIR}
+set(INCLUDE_DIR_LIST
+    ${MAIN_DIR}/include
 )
 
-MESSAGE( STATUS "Setting Done ")
-# ----------------------------------------------- #
+set(HEADER_LIST
+    ${HEADER_DIR}/Object/Object.h
+    ${HEADER_DIR}/Object/Data.h
+    ${HEADER_DIR}/Object/Entity.h
+    ${HEADER_DIR}/Object/Scene.h
+    ${HEADER_DIR}/Object/System.h
 
+    ${HEADER_DIR}/Container/BaseContainer.h
+    ${HEADER_DIR}/Container/ComponentContainer.h
+    ${HEADER_DIR}/Container/EntityContainer.h
+    ${HEADER_DIR}/Container/NodeContainer.h
 
+    ${HEADER_DIR}/Graph/Graph.h
+    
+    ${HEADER_DIR}/Registry/ContainerRegistry.h
+    ${HEADER_DIR}/Registry/ComponentRegistry.h
+    ${HEADER_DIR}/Registry/NodeRegistry.h
+    ${HEADER_DIR}/Registry/SystemRegistry.h
 
-# ------ Set Options for Target Files ----------- #
-MESSAGE( STATUS "Set Option" )
+    ${HEADER_DIR}/UUID/UUID.h
 
-OPTION( BUILD_STATIC_LIBRARY "Set option for the library which is static or dynamic" OFF )
-OPTION( INSTALL_DEMO_FILE "Install demofile for memorymanager" OFF )
-## Set Option for install lib, header files' path
-SET( PREFIX_DIR ${MAIN_DIR}/build/Prefix CACHE PATH "Prefix Path" )
-SET( INCLUDE_DIR ${MAIN_DIR}/build/include CACHE PATH "Header files Path" )
-SET( ARC_DIR ${MAIN_DIR}/build/arc CACHE PATH "Archieve files Path" )
-SET( LIB_DIR ${MAIN_DIR}/build/lib CACHE PATH "Library files Path" )
-SET( BIN_DIR ${MAIN_DIR}/build/bin CACHE PATH "Execute files Path" )
-SET( CMAKE_BUILD_TYPE Debug CACHE STRING "Build Type" )
+    ${HEADER_DIR}/TimeStep.h
+    ${HEADER_DIR}/Utils.h
+    ${HEADER_DIR}/ECS.h
+)
 
-INCLUDE( Dependency.cmake )
+set(SOURCE_LIST
+    ${SOURCE_DIR}/Object/Object.cpp
+    ${SOURCE_DIR}/Object/Entity.cpp
+    ${SOURCE_DIR}/Object/Scene.cpp
+    ${SOURCE_DIR}/Object/System.cpp
 
-IF ( WIN32 )
-    MESSAGE( STATUS "Windows Platform for library")
-    SET( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1 )
-ENDIF()
+    ${SOURCE_DIR}/Container/BaseContainer.cpp
+    ${SOURCE_DIR}/Container/EntityContainer.cpp
 
-MESSAGE( STATUS "Setting Done ")
-# ----------------------------------------------- #
+    ${SOURCE_DIR}/Registry/SystemRegistry.cpp
 
+    ${SOURCE_DIR}/UUID/UUID.cpp
+)
 
+create_library(
+    LIBRARY_TYPE ${LIBRARY_TYPE}
+    TARGET_NAME ${PROJECT_NAME}
+    PUBLIC_HEADERS ${HEADER_LIST}
+    PRIVATE_SOURCES ${SOURCE_LIST}
+)
 
-# ------ Create library ---------------- #
-MESSAGE(STATUS "Create Library ")
+install_library(
+    TARGET_NAME ${PROJECT_NAME}
+    INCLUDE_DIRS ${INCLUDE_DIR_LIST}
+)
 
-IF ( BUILD_STATIC_LIBRARY )
-    ADD_LIBRARY( ${PROJECT_NAME} STATIC ${SOURCE_DIR} )
-    MESSAGE( STATUS "Build library as a static" )
-ELSE ()
-    ADD_LIBRARY( ${PROJECT_NAME} SHARED ${SOURCE_DIR} )
-    MESSAGE( STATUS "Build library as a dynamic" )
-ENDIF()
+# ------ Set the project options ------ #
+include(${CMAKE_SOURCE_DIR}/external/CMake/Project.cmake)
 
-FOREACH( FOLDER ${FOLDER_DIR} )
-    FILE( COPY ${FOLDER}/ DESTINATION ${INCLUDE_DIR}/${PROJECT_NAME}
-        FILES_MATCHING PATTERN "*.h" )
-ENDFOREACH()
+project_options()
 
-IF ( CMAKE_BUILD_TYPE MATCHES Debug )
-    SET_TARGET_PROPERTIES( ${PROJECT_NAME} PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${ARC_DIR}
-        LIBRARY_OUTPUT_DIRECTORY_DEBUG ${LIB_DIR}
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BIN_DIR}
-    )
-    MESSAGE( STATUS "Build library on Debug mode" )
-ELSEIF ( CMAKE_BUILD_TYPE MATCHES Release )
-    SET_TARGET_PROPERTIES( ${PROJECT_NAME} PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${ARC_DIR}
-        LIBRARY_OUTPUT_DIRECTORY_RELEASE ${LIB_DIR}
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BIN_DIR}
-    )
-    MESSAGE( STATUS "Build library on Release mode" )
-ELSE()
-    SET_TARGET_PROPERTIES( ${PROJECT_NAME} PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY ${ARC_DIR}
-        LIBRARY_OUTPUT_DIRECTORY ${LIB_DIR}
-        RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
-    )
-    MESSAGE( STATUS "Build library on Other mode" )
-ENDIF()
+target_include_directories(${PROJECT_NAME} PUBLIC ${EXTERNAL_DIR})
+target_link_libraries(${PROJECT_NAME} PUBLIC MemoryProject ReflectionProject LogProject)
 
-MESSAGE( STATUS "Creating Done ")
-# ----------------------------------------------- #
+# ------ Add the sub modules ------ #
+message(STATUS "- Add the Sub Project")
 
+set(MEMORY_DEMO_FILE OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/Memory Memory)
 
+set(REFLECTION_DEMO_FILE OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/Reflection Reflection)
 
-# ------ Set Options for Target Files ----------- #
-MESSAGE(STATUS "Set Options for Target Files")
+set(CONTAINER_DEMO_FILE OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/Container Container)
 
-TARGET_INCLUDE_DIRECTORIES( ${PROJECT_NAME} PUBLIC ${FOLDER_DIR} ${DEP_INCLUDE})
-TARGET_LINK_DIRECTORIES( ${PROJECT_NAME} PUBLIC ${LIB_DIR})
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} PUBLIC ${DEP_LIBS})
-ADD_DEPENDENCIES( ${PROJECT_NAME} ${DEP_LIST})
+set(LOG_DEMO_FILE OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/Log Log)
 
-MESSAGE(STATUS "Setting Done ")
-# ----------------------------------------------- #
+# ------ Create the Demofile ------ #
+option(ECS_DEMO_FILE "Build the demo file" ON)
 
+if (ECS_DEMO_FILE)
+    message(STATUS "# Create the demofile project")
 
-
-# ------ Create Demofile ------------------------ #
-MESSAGE( STATUS "Create Demofile")
-
-IF ( INSTALL_DEMO_FILE )
-    ADD_SUBDIRECTORY( ${DEMOFILE_DIR} )
-    MESSAGE( STATUS "Install Demofile that use MemoryProject" )
-ELSE()
-    MESSAGE( STATUS "Do not install ECSProject's Demofile" )
-ENDIF()
-
-MESSAGE( STATUS "Create Done")
-# ----------------------------------------------- #
+    add_subdirectory(${MAIN_DIR}/demofile)
+endif()

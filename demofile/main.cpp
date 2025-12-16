@@ -1,103 +1,188 @@
-#include "ManagerList.h"
-#include "MyUUID.h"
+#include <Log/include/Log.h>
+#include <Log/include/LogPlatform.h>
 
-#include <LogProject/Log.h>
-#include <MemoryProject/MemoryManager.h>
+#include <Memory/include/Memory.h>
 
-#include "SystemList.h"
+#include <ECS.h>
+
 #include "ComponentList.h"
 #include "NodeList.h"
+#include "SystemList.h"
 
-void Example()
+struct World
 {
-    Log::Info("%zu",sizeof( Scene ) );
+	GENERATE(World);
 
-    MemoryManager::GetHandle().Init();
+public :
+	PROPERTY(entity);
+	ECS::EntityContainer entity;
 
-    // Initialization each Manager
-    SceneManager::GetHandle().Init();
-    SystemManager::GetHandle().Init();
-    EntityManager::GetHandle().Init();
-    NodeManager::GetHandle().Init();
-    ComponentManager::GetHandle().Init();
+	PROPERTY(node);
+	ECS::NodeRegistry node;
 
-    // Create each System using System Manager
-    MemoryPtr<ISystem> Render = SystemManager::GetHandle().Create<RenderSystem>();
-    MemoryPtr<ISystem> Move = SystemManager::GetHandle().Create<MoveSystem>();
-    MemoryPtr<ISystem> Collision = SystemManager::GetHandle().Create<CollisionSystem>();
-    MemoryPtr<ISystem> Physics = SystemManager::GetHandle().Create<PhysicsSystem>();
-    MemoryPtr<ISystem> Camera = SystemManager::GetHandle().Create<CameraSystem>();
+	PROPERTY(component);
+	ECS::ComponentRegistry component;
 
-    // Set dependency eacy system
-    SystemManager::GetHandle().SetDependency( Physics->GetID(), Collision->GetID() );
-    SystemManager::GetHandle().SetDependency( Collision->GetID(), Move->GetID() );
-    SystemManager::GetHandle().SetDependency( Move->GetID(), Render->GetID() );
-    SystemManager::GetHandle().SetDependency( Camera->GetID(), Render->GetID() );
+	PROPERTY(system);
+	ECS::SystemRegistry system;
 
-    // Create Scene
-    MemoryPtr<Scene> Main = SceneManager::GetHandle().Create();
+	PROPERTY(scene);
+	ECS::Scene scene;
 
-    // Create Entity and Register in Main Scene
-    MemoryPtr<Entity> Object = EntityManager::GetHandle().Create();
+	METHOD(Update);
+	void Update(const ECS::TimeStep& timeStep)
+	{
+		LOGINFO() << "[TEST] World Update - Start";
 
-    // Create Component
-    MemoryPtr<MeshComponent> Mesh = ComponentManager::GetHandle().Create<MeshComponent>();
-    MemoryPtr<TransformComponent> Trans = ComponentManager::GetHandle().Create<TransformComponent>();
+		const ECS::SystemRegistry::GraphType graph = system.BuildGraph();
+		const wtr::DynamicArray<ECS::UUID> partialID = graph.GetPartialSorted(scene.GetSystemID());
 
-    // Add Mesh Component and Transfrom Component to Object Entity
-    Object->AddComponent<MeshComponent>( Mesh->GetID() );
-    Object->AddComponent<TransformComponent>( Trans->GetID() );
+		for (const auto& systemID : partialID)
+		{
+			auto sSystem = system.Get(systemID);
+			if (!sSystem)
+			{
+				continue;
+			}
 
-    // Create RenderNode through Object Entity
-    MemoryPtr<RenderNode> Node_1 = NodeManager::GetHandle().Create<RenderNode>( Object );
-    Main->RegisterNode<RenderNode>( Node_1->GetID() );
+			const auto nodeType = sSystem->GetNodeType();
+			auto nodeContainer = node.GetContainer(nodeType);
 
-    // Register some system in Main Scene
-    Main->RegisterSystem( Render->GetID() );
-    Main->RegisterSystem( Physics->GetID() );
+			sSystem->Update(timeStep, nodeContainer);
+		}
 
-    // Frame in Scene
-    Main->Update( 0.0f );
+		LOGINFO() << "[TEST] World Update - Done";
+	}
+};
 
-    // Create PhysicsNode through Object Entity
-    MemoryPtr<PhysicsNode> Node_2 = NodeManager::GetHandle().Create<PhysicsNode>( Object );
-    Main->RegisterNode<PhysicsNode>( Node_2->GetID() );
+void Test()
+{
+	LOGINFO() << "[TEST] Make the registry data";
 
-    // Frame in Scene
-    Main->Update( 0.0f );
+	// Create the world and register the GC.
+	Memory::RootPtr<World> world = Memory::MakePtr<World>();
 
+	// Create the entity.
+	Memory::ObjectPtr<ECS::Entity> entity = world->entity.Emplace("Hello");
 
-    SceneManager::GetHandle().Destroy();
-    SystemManager::GetHandle().Destroy();
-    EntityManager::GetHandle().Destroy();
-    NodeManager::GetHandle().Destroy();
-    ComponentManager::GetHandle().Destroy();
+	// Create the component with entity's id or arguments.
+	Memory::ObjectPtr<MeshComponent> cMesh = world->component.Create<MeshComponent>(entity->GetID());
+	Memory::ObjectPtr<VelocityComponent> cVelocity = world->component.Create<VelocityComponent>(entity->GetID());
+	Memory::ObjectPtr<TransformComponent> cTransform = world->component.Create<TransformComponent>(entity->GetID());
+	Memory::ObjectPtr<ColorComponent> cColor = world->component.Create<ColorComponent>(entity->GetID(), 1.0, 0.0, 0.0, 1.0);
+	Memory::ObjectPtr<CameraComponent> cCamera = world->component.Create<CameraComponent>(entity->GetID(), 45.0, 1.0, 1000.0, 1080, 900);
+	Memory::ObjectPtr<ResourceComponent> cResource = world->component.Create<ResourceComponent>(entity->GetID(), "Basic");
 
-    MemoryManager::GetHandle().Destroy();
+	// Create the node with entity's id or arguments.
+	Memory::ObjectPtr<RenderNode> nRender = world->node.Create<RenderNode>(entity->GetID(), cResource, cTransform, cColor);
+	Memory::ObjectPtr<CameraNode> nCamera = world->node.Create<CameraNode>(entity->GetID());
+	Memory::ObjectPtr<CollisionNode> nCollision = world->node.Create<CollisionNode>(entity->GetID());
+	Memory::ObjectPtr<PhysicsNode> nPhysics = world->node.Create<PhysicsNode>(entity->GetID());
+
+	// Create the system.
+	Memory::ObjectPtr<RenderSystem> sRender = world->system.Create<RenderSystem>();
+	Memory::ObjectPtr<GravitySystem> sGravity = world->system.Create<GravitySystem>();
+	Memory::ObjectPtr<MoveSystem> sMove = world->system.Create<MoveSystem>();
+	Memory::ObjectPtr<CollisionSystem> sCollision = world->system.Create<CollisionSystem>();
+	Memory::ObjectPtr<CameraSystem> sCamera = world->system.Create<CameraSystem>();
+
+	// Set the system's dependency.
+	sRender->DependOn(sCamera);
+	sRender->DependOn(sMove);
+
+	sMove->DependOn(sCollision);
+	sCollision->DependOn(sGravity);
+
+	// System Graph
+	// 
+	// Gravity   Camera
+	//    |        |
+	// Collision   |
+	//    |        |
+	//   Move     /
+	//     \     /
+	//      Render
+
+	// Build the system graph.
+	const ECS::SystemRegistry::GraphType graph = world->system.BuildGraph();
+	for (const auto& systemID : graph.GetSorted())
+	{
+		const auto system = world->system.Get(systemID);
+		if (system)
+		{
+			LOGINFO() << "[TEST] System - " << system->GetTypeInfo()->GetTypeName();
+		}
+	}
+
+	// Failed to build the system graph, cause the move system relyed on the render system.
+	// The dependency makes circular graph.
+	sMove->DependOn(sRender);
+	world->system.BuildGraph();
+	sMove->RemoveOn(sRender);
+
+	// Register node and system on the scene.
+	auto& scene = world->scene;
+
+	scene.RegisterNode(nRender);
+	scene.RegisterNode(nPhysics);
+
+	scene.RegisterSystem(sRender);
+	scene.RegisterSystem(sGravity);
+	scene.RegisterSystem(sMove);
+
+	ECS::TimeStep timeStep;
+	world->Update(timeStep);
+
+	// Failed to register the collision system, cause the collision node isn't registed.
+	// So, if the collision system is registed, it will just update the other scene's node data.
+	scene.RegisterSystem(sCollision);
+
+	scene.RegisterNode(nCollision);
+	scene.RegisterSystem(sCollision);
+
+	world->Update(timeStep);
+
+	Memory::Collect();
+
+	LOGINFO() << "[TEST] Done";
 }
 
-#ifdef _WIN32
-#pragma comment(linker, "/entry:WinMainCRTStartup")
-#pragma comment(linker, "/subsystem:console")
-
-int CALLBACK WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
+void Print()
 {
-    Log::Info(" Windows ");
-#elif __linux__
-int main()
-{
-    Log::Info(" Linux ");
-#endif
-    try
-    {
-        Example();
-    }
-    catch ( const Except& e )
-    {
-        Log::Error( e.what() );
-    }
+	LOGINFO() << "[ Print Type Info ]";
 
-    Log::Print();
-    
-    return 0;
-};
+	for (const auto& [hash, typeInfo] : Reflection::TypeManager::GetHandle().GetTypeMap())
+	{
+		LOGINFO() << "[TEST] Type : " << typeInfo->GetTypeName();
+
+		for (const auto& [name, property] : typeInfo->GetProperties())
+		{
+			LOGINFO() << "[TEST] Property : " << name;
+		}
+
+		for (const auto& [name, methd] : typeInfo->GetMethods())
+		{
+			LOGINFO() << "[TEST] Method : " << name;
+		}
+	}
+
+	LOGINFO() << " ";
+}
+
+int MAIN()
+{
+	Log::Init(1024, Log::Enum::eMode_Print, Log::Enum::eLevel_Type);
+
+	Memory::Init(1024, 10000);
+
+	// Print(); Reflection Test
+	
+	Test();
+
+	Memory::Collect();
+	Memory::Release();
+
+	system("pause");
+
+	return 0;
+}

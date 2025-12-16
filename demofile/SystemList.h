@@ -1,160 +1,89 @@
 #ifndef __SYSTEM_H__
 #define __SYSTEM_H__
 
-#include "ISystem.h"
+#include <Log/include/Log.h>
+
 #include "NodeList.h"
-#include "NodeManager.h"
+#include "Object/System.h"
 
-class RenderSystem : public ISystem
+class RenderSystem : public ECS::TypedSystem<RenderNode>
 {
-    public :
-        RenderSystem() { SetNodeType(); };
-        RenderSystem( MyUUID ID ) : ISystem( ID ) { SetNodeType(); };
-        virtual ~RenderSystem() {};
+	GENERATE(RenderSystem);
 
-    public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& NodeIDData )
-        {
-            for ( auto ID : NodeIDData )
-            {
-                bool Check = NodeManager::GetHandle().HasNode<RenderNode>( ID );
-                if ( Check )
-                {
-                    MemoryPtr<RenderNode> Node = NodeManager::GetHandle().GetNode<RenderNode>( ID );
-                    Log::Info(" RenderSystem Update %s ", ID.GetString().c_str() );
-                }
-                else
-                {
-                    Log::Info(" RenderSystem not Update %s ", ID.GetString().c_str() );
-                }
-            }
-        }
+public :
+	void UpdateInternal(const ECS::TimeStep& timeStep, Memory::ObjectPtr<ContainerType> container)
+	{
+		LOGINFO() << "[TEST] System(" << GetTypeInfo()->GetTypeName() << ") Update";
 
-        virtual void SetNodeType( const std::type_info* Type = &typeid( RenderNode ) ) { m_NodeType = Type; }
+		for (auto& [uuid, node] : container->GetStorage())
+		{
+			if (node && node->color && node->resource && node->transform)
+			{
+				LOGINFO() << "[TEST] RenderNode"
+					<< " Color(" << node->color->Red << ", " << node->color->Green << ", " << node->color->Blue << ", " << node->color->Alpha << ")"
+					<< " Resource(" << node->resource->resourceID << ")";
+			}
+		}
+
+		(void)timeStep;
+		(void)container;
+	}
 };
 
-class PhysicsSystem : public ISystem
+class GravitySystem : public ECS::TypedSystem<PhysicsNode>
 {
-    public :
-        PhysicsSystem() { SetNodeType(); };
-        PhysicsSystem( MyUUID ID ) : ISystem( ID ) { SetNodeType(); };
-        virtual ~PhysicsSystem() {};
+	GENERATE(GravitySystem);
 
-    public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& NodeIDData )
-        {
-            for ( auto ID : NodeIDData )
-            {
-                bool Check = NodeManager::GetHandle().HasNode<PhysicsNode>( ID );
-                if ( Check )
-                {
-                    MemoryPtr<PhysicsNode> Node = NodeManager::GetHandle().GetNode<PhysicsNode>( ID );
-                    Log::Info(" PhysicsSystem Update %s ", ID.GetString().c_str() );
-                }
-                else
-                {
-                    Log::Info(" PhysicsSystem not Update %s ", ID.GetString().c_str() );
-                }
-            }
-        }
+public:
+	void UpdateInternal(const ECS::TimeStep& timeStep, Memory::ObjectPtr<ContainerType> container)
+	{
+		LOGINFO() << "[TEST] System(" << GetTypeInfo()->GetTypeName() << ") Update";
 
-        virtual void SetNodeType( const std::type_info* Type = &typeid( PhysicsNode ) )
-        {
-            m_NodeType = Type;
-        }
+		(void)timeStep;
+		(void)container;
+	}
 };
 
-class MoveSystem : public ISystem
+class MoveSystem : public ECS::TypedSystem<PhysicsNode>
 {
-    public :
-        MoveSystem() { SetNodeType(); };
-        MoveSystem( MyUUID ID ) : ISystem( ID ) { SetNodeType(); };
-        virtual ~MoveSystem() {};
+	GENERATE(MoveSystem);
 
-    public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& NodeIDData )
-        {
-            for ( auto ID : NodeIDData )
-            {
-                bool Check = NodeManager::GetHandle().HasNode<PhysicsNode>( ID );
-                if ( Check )
-                {
-                    MemoryPtr<PhysicsNode> Node = NodeManager::GetHandle().GetNode<PhysicsNode>( ID );
-                    Log::Info(" MoveSystem Update %s ", ID.GetString().c_str() );
-                }
-                else
-                {
-                    Log::Info(" MoveSystem not Update %s ", ID.GetString().c_str() );
-                }
-            }
-        }
+public:
+	void UpdateInternal(const ECS::TimeStep& timeStep, Memory::ObjectPtr<ContainerType> container)
+	{
+		LOGINFO() << "[TEST] System(" << GetTypeInfo()->GetTypeName() << ") Update";
 
-        virtual void SetNodeType( const std::type_info* Type = &typeid( PhysicsNode ) )
-        {
-            m_NodeType = Type;
-        }
+		(void)timeStep;
+		(void)container;
+	}
 };
 
-class CollisionSystem : public ISystem
+class CollisionSystem : public ECS::TypedSystem<CollisionNode>
 {
-    public :
-        CollisionSystem() { SetNodeType(); };
-        CollisionSystem( MyUUID ID ) : ISystem( ID ) { SetNodeType(); };
-        virtual ~CollisionSystem() {};
+	GENERATE(CollisionSystem);
 
-    public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& NodeIDData )
-        {
-            for ( auto ID : NodeIDData )
-            {
-                bool Check = NodeManager::GetHandle().HasNode<CollisionNode>( ID );
-                if ( Check )
-                {
-                    MemoryPtr<CollisionNode> Node = NodeManager::GetHandle().GetNode<CollisionNode>( ID );
-                    Log::Info(" CollisionSystem Update %s ", ID.GetString().c_str() );
-                }
-                else
-                {
-                    Log::Info(" CollisionSystem not Update %s ", ID.GetString().c_str() );
-                }
-            }
-        }
+public:
+	void UpdateInternal(const ECS::TimeStep& timeStep, Memory::ObjectPtr<ContainerType> container)
+	{
+		LOGINFO() << "[TEST] System(" << GetTypeInfo()->GetTypeName() << ") Update";
 
-        virtual void SetNodeType( const std::type_info* Type = &typeid( CollisionNode ) )
-        {
-            m_NodeType = Type;
-        }
+		(void)timeStep;
+		(void)container;
+	}
 };
 
-class CameraSystem : public ISystem
+class CameraSystem : public ECS::TypedSystem<CameraNode>
 {
-    public :
-        CameraSystem() { SetNodeType(); };
-        CameraSystem( MyUUID ID ) : ISystem( ID ) { SetNodeType(); };
-        virtual ~CameraSystem() {};
+	GENERATE(CameraSystem);
 
-    public :
-        virtual void Update( float Deltatime, int SceneIndex, MyUUIDUnSet& NodeIDData )
-        {
-            for ( auto ID : NodeIDData )
-            {
-                bool Check = NodeManager::GetHandle().HasNode<CameraNode>( ID );
-                if ( Check )
-                {
-                    MemoryPtr<CameraNode> Node = NodeManager::GetHandle().GetNode<CameraNode>( ID );
-                    Log::Info(" CameraSystem Update %s ", ID.GetString().c_str() );
-                }
-                else
-                {
-                    Log::Info(" CameraSystem not Update %s ", ID.GetString().c_str() );
-                }
-            }
-        }
+public:
+	void UpdateInternal(const ECS::TimeStep& timeStep, Memory::ObjectPtr<ContainerType> container)
+	{
+		LOGINFO() << "[TEST] System(" << GetTypeInfo()->GetTypeName() << ") Update";
 
-        virtual void SetNodeType( const std::type_info* Type = &typeid( CameraNode ) )
-        {
-            m_NodeType = Type;
-        }
+		(void)timeStep;
+		(void)container;
+	}
 };
 
 #endif // __SYSTEM_H__

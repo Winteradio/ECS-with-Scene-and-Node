@@ -22,6 +22,39 @@
             "args" : [],
             "cwd" : "${workspaceFolder}",
             "stopAtEntry" : true,
+        },
+        {
+            "name": "(gdb) Launch - WSL ECS Demo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Demo", // <-- 실행 파일 경로 확인
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb", // WSL 내부 GDB 경로
+            "setupCommands": [
+                {
+                    "description": "Enable pretty printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // **[필수] WSL 디버깅을 위한 설정**
+            "pipeTransport": {
+                "pipeCwd": "${workspaceFolder}",
+                "pipeProgram": "/usr/bin/bash",
+                "pipeArgs": ["-c"],
+                "debuggerSendCommands": [
+                    "export LD_LIBRARY_PATH=${workspaceFolder};" // .so 파일 찾도록 경로 설정
+                ],
+                "transport": "pipe"
+            },
+            "sourceFileMap": {
+                "/mnt/c/Users/Winteradio/Desktop/Project/ECS": "${workspaceFolder}" 
+            }
         }
     ]
 }
