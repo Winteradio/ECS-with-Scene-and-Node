@@ -1,5 +1,4 @@
-# ECS Framework: C++용 데이터 지향 엔티티 컴포넌트 시스템
-
+# ECS Framework: C++용 DOTS System
 ## 소개
 
 **ECS Framework**는 C++17 환경에서 사용할 수 있도록 설계된 **데이터 지향(Data-Oriented) 엔티티 컴포넌트 시스템(ECS)**입니다.  
