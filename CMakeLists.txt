@@ -63,6 +63,9 @@ set(SOURCE_LIST
     ${SOURCE_DIR}/UUID/UUID.cpp
 )
 
+source_group(TREE "${HEADER_DIR}" PREFIX "include" FILES ${HEADER_LIST})
+source_group(TREE "${SOURCE_DIR}" PREFIX "src" FILES ${SOURCE_LIST})
+
 create_library(
     LIBRARY_TYPE ${LIBRARY_TYPE}
     TARGET_NAME ${PROJECT_NAME}
