@@ -24,8 +24,8 @@ namespace ECS
 			using TypeData = wtr::HashMap<size_t, uint32_t>;
 
 			Scene();
-			Scene(const  std::string& name);
-			~Scene() = default;
+			Scene(const std::string& name);
+			virtual ~Scene() = default;
 
 		public :
 			template<typename T>

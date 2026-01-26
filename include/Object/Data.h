@@ -16,14 +16,7 @@ namespace ECS
 	namespace Node
 	{
 		// Add the Node Type that inheritance the base
-		
-		template<typename... Types>
-		struct TypeList;
-
-		struct Base : public Object
-		{
-			using ComponentType = TypeList<>;
-		};
+		struct Base : public Object {};
 	};
 };
 

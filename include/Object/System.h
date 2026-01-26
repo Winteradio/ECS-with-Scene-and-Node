@@ -3,6 +3,8 @@
 
 #include <Reflection/include/Type/TypeInfo.h>
 #include <Memory/include/Memory.h>
+#include <ECS/include/Container/BaseContainer.h>
+#include <ECS/include/Container/NodeContainer.h>
 
 #include "Object/Object.h"
 #include "TimeStep.h"
@@ -10,11 +12,6 @@
 
 namespace ECS
 {
-	class BaseContainer;
-
-	template<typename T>
-	class NodeContainer;
-
 	class System : public Object
 	{
 		GENERATE(System);
