@@ -13,7 +13,16 @@
 
 namespace ECS
 {
-	template<typename T, typename StringMaker>
+	template<typename T>
+	struct DefaultMaker
+	{
+		std::string operator()(const T& data) const
+		{
+			return std::string();
+		}
+	};
+
+	template<typename T, typename StringMaker = DefaultMaker<T>>
 	class Graph
 	{
 	public :
