@@ -16,15 +16,6 @@ namespace ECS
 	{
 		GENERATE(SystemRegistry);
 
-	private:
-		struct UUIDString
-		{
-			std::string operator()(const UUID& uuid) const
-			{
-				return uuid.ToString();
-			}
-		};
-
 	public :
 		using Storage = wtr::HashMap<UUID, Memory::ObjectPtr<System>>;
 		using TypeData = wtr::HashMap<size_t, UUID>;

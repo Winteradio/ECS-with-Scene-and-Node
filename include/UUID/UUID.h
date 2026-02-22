@@ -31,6 +31,14 @@ namespace ECS
 		uint64_t m_high;
 		uint64_t m_low;
 	};
+
+	struct UUIDString
+	{
+		std::string operator()(const UUID& uuid) const
+		{
+			return uuid.ToString();
+		}
+	};
 };
 
 namespace std
