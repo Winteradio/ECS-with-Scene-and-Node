@@ -3,10 +3,9 @@
 
 #include <Reflection/include/Type/TypeInfo.h>
 #include <Memory/include/Memory.h>
-#include <ECS/include/Container/BaseContainer.h>
-#include <ECS/include/Container/NodeContainer.h>
 
-#include "Object/Object.h"
+#include "Object/Data.h"
+#include "Container/Container.h"
 #include "TimeStep.h"
 #include "Utils.h"
 
@@ -32,7 +31,7 @@ namespace ECS
 			virtual ~System() = default;
 
 		public : 
-			virtual void Update(const TimeStep& timeStep, Memory::ObjectPtr<BaseContainer> container) = 0;
+			virtual void Update(const TimeStep& timeStep, Memory::ObjectPtr<BaseContainer<Node>> container) = 0;
 			
 			void DependOn(const UUID& systemID);
 			void DependOn(const Memory::ObjectPtr<System> system);
@@ -48,30 +47,27 @@ namespace ECS
 			const Reflection::TypeInfo* m_nodeType;
 	};
 
-	template<typename Node>
+	template<typename T>
 	class TypedSystem : public System
 	{
-		static_assert(Utils::IsNode<Node> && "Invalid the node type");
+		static_assert(Utils::IsNode<T> && "Invalid the node type");
 
 		GENERATE(TypedSystem);
 
 		public :
 			using System::System;
-			using ContainerType = NodeContainer<Node>;
-			using NodeType = Node;
+			using NodeType = T;
+			using ContainerType = Container<NodeType, Node>;
 			
 			TypedSystem()
-				: System(Reflection::TypeInfo::Get<Node>())
+				: System(Reflection::TypeInfo::Get<NodeType>())
 			{}
 
 		public :
-			void Update(const TimeStep& timeStep, Memory::ObjectPtr<BaseContainer> container) override
+			void Update(const TimeStep& timeStep, Memory::ObjectPtr<BaseContainer<Node>> container) override
 			{
 				Memory::ObjectPtr<ContainerType> nodeContainer = Memory::Cast<ContainerType>(container);
-				if (nodeContainer)
-				{
-					UpdateInternal(timeStep, nodeContainer);
-				}
+				UpdateInternal(timeStep, nodeContainer);
 			}
 
 		protected:

@@ -15,6 +15,11 @@ public :
 	{
 		LOGINFO() << "[TEST] System(" << GetTypeInfo()->GetTypeName() << ") Update";
 
+		if (!container)
+		{
+			return;
+		}
+
 		for (auto& [uuid, node] : container->GetStorage())
 		{
 			if (node && node->color && node->resource && node->transform)

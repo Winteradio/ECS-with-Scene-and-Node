@@ -15,7 +15,7 @@ struct World
 
 public :
 	PROPERTY(entity);
-	ECS::EntityContainer entity;
+	ECS::Container<ECS::Entity> entity;
 
 	PROPERTY(node);
 	ECS::NodeRegistry node;
@@ -26,16 +26,13 @@ public :
 	PROPERTY(system);
 	ECS::SystemRegistry system;
 
-	PROPERTY(scene);
-	ECS::Scene scene;
-
 	METHOD(Update);
 	void Update(const ECS::TimeStep& timeStep)
 	{
 		LOGINFO() << "[TEST] World Update - Start";
 
 		const ECS::SystemRegistry::GraphType graph = system.BuildGraph();
-		const wtr::DynamicArray<ECS::UUID> partialID = graph.GetPartialSorted(scene.GetSystemID());
+		const wtr::DynamicArray<ECS::UUID> partialID = graph.GetSorted();
 
 		for (const auto& systemID : partialID)
 		{
@@ -120,26 +117,7 @@ void Test()
 	world->system.BuildGraph();
 	sMove->RemoveOn(sRender);
 
-	// Register node and system on the scene.
-	auto& scene = world->scene;
-
-	scene.RegisterNode(nRender);
-	scene.RegisterNode(nPhysics);
-
-	scene.RegisterSystem(sRender);
-	scene.RegisterSystem(sGravity);
-	scene.RegisterSystem(sMove);
-
 	ECS::TimeStep timeStep;
-	world->Update(timeStep);
-
-	// Failed to register the collision system, cause the collision node isn't registed.
-	// So, if the collision system is registed, it will just update the other scene's node data.
-	scene.RegisterSystem(sCollision);
-
-	scene.RegisterNode(nCollision);
-	scene.RegisterSystem(sCollision);
-
 	world->Update(timeStep);
 
 	Memory::Collect();

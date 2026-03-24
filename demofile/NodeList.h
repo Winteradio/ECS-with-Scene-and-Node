@@ -4,35 +4,44 @@
 #include "ComponentList.h"
 #include <Memory/include/Memory.h>
 
-struct RenderNode : ECS::Node::Base
+struct RenderNode : ECS::Node
 {
+    using ECS::Node::Node;
+
     Memory::ObjectPtr<ResourceComponent> resource;
     Memory::ObjectPtr<TransformComponent> transform;
     Memory::ObjectPtr<ColorComponent> color;
 
-    RenderNode(const Memory::ObjectPtr<ResourceComponent> resource
+    RenderNode(const ECS::UUID& uuid, const Memory::ObjectPtr<ResourceComponent> resource
         , const Memory::ObjectPtr<TransformComponent> transform
         , const Memory::ObjectPtr<ColorComponent> color)
-        : resource(resource)
+        : ECS::Node(uuid)
+        , resource(resource)
         , transform(transform)
         , color(color)
     {}
 };
 
-struct CameraNode : ECS::Node::Base
+struct CameraNode : ECS::Node
 {
+    using ECS::Node::Node;
+
     Memory::ObjectPtr<CameraComponent> camera;
     Memory::ObjectPtr<TransformComponent> transform;
 };
 
-struct CollisionNode : ECS::Node::Base
+struct CollisionNode : ECS::Node
 {
+    using ECS::Node::Node;
+
     Memory::ObjectPtr<MeshComponent> mesh;
     Memory::ObjectPtr<TransformComponent> transform;
 };
 
-struct PhysicsNode : ECS::Node::Base
+struct PhysicsNode : ECS::Node
 {
+    using ECS::Node::Node;
+
     Memory::ObjectPtr<VelocityComponent> velocity;
     Memory::ObjectPtr<TransformComponent> transform;
 };

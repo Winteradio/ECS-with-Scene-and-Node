@@ -74,12 +74,12 @@ namespace ECS
 		}
 
 		template<typename T>
-		const Memory::ObjectPtr<T> Get() const
+		const Memory::ObjectPtr<const T> Get() const
 		{
 			const Reflection::TypeInfo* typeInfo = Reflection::TypeInfo::Get<T>();
 
 			Memory::ObjectPtr<System> baseSystem = Get(typeInfo);
-			Memory::ObjectPtr<T> system = Memory::Cast<T>(baseSystem);
+			Memory::ObjectPtr<const T> system = Memory::Cast<const T>(baseSystem);
 
 			return system;
 		}

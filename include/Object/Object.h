@@ -14,7 +14,7 @@ namespace ECS
 			Object(const UUID& uuid);
 			Object(const Object& other);
 			Object(Object&& other);
-			~Object() = default;
+			virtual ~Object() = default;
 
 			Object& operator=(const Object& other);
 			Object& operator=(Object&& other);

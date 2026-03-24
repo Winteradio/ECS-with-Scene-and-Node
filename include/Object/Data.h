@@ -7,16 +7,22 @@
 
 namespace ECS
 {
-	namespace Component
+	// Add the Component Type that inheritance the base
+	struct Component : Object
 	{
-		// Add the Component Type that inheritance the base
-		struct Base {};
+		using Object::Object;
+
+		Component() = default;
+		virtual ~Component() = default;
 	};
 
-	namespace Node
+	// Add the Node Type that inheritance the base
+	struct Node : public Object 
 	{
-		// Add the Node Type that inheritance the base
-		struct Base : public Object {};
+		using Object::Object;
+
+		Node() = default;
+		virtual ~Node() = default;
 	};
 };
 
