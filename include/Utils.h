@@ -5,15 +5,8 @@
 
 namespace ECS
 {
-	namespace Component
-	{
-		class Base;
-	};
-
-	namespace Node
-	{
-		class Base;
-	};
+	struct Component;
+	struct Node;
 	
 	class System;
 	class Object;
@@ -21,10 +14,10 @@ namespace ECS
 	namespace Utils
 	{
 		template<typename T>
-		constexpr bool IsComponent = Reflection::Utils::IsBase<Component::Base, T>::value;
+		constexpr bool IsComponent = Reflection::Utils::IsBase<Component, T>::value;
 
 		template<typename T>
-		constexpr bool IsNode = Reflection::Utils::IsBase<Node::Base, T>::value;
+		constexpr bool IsNode = Reflection::Utils::IsBase<Node, T>::value;
 
 		template<typename T>
 		constexpr bool IsSystem = Reflection::Utils::IsBase<System, T>::value;

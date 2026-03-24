@@ -27,20 +27,14 @@ set(HEADER_LIST
     ${HEADER_DIR}/Object/Object.h
     ${HEADER_DIR}/Object/Data.h
     ${HEADER_DIR}/Object/Entity.h
-    ${HEADER_DIR}/Object/Scene.h
     ${HEADER_DIR}/Object/System.h
 
-    ${HEADER_DIR}/Container/BaseContainer.h
-    ${HEADER_DIR}/Container/ComponentContainer.h
-    ${HEADER_DIR}/Container/EntityContainer.h
-    ${HEADER_DIR}/Container/NodeContainer.h
+    ${HEADER_DIR}/Container/Container.h
+    ${HEADER_DIR}/Container/DataRegistry.h
+    ${HEADER_DIR}/Container/Registry.h
+    ${HEADER_DIR}/Container/SystemRegistry.h
 
     ${HEADER_DIR}/Graph/Graph.h
-    
-    ${HEADER_DIR}/Registry/ContainerRegistry.h
-    ${HEADER_DIR}/Registry/ComponentRegistry.h
-    ${HEADER_DIR}/Registry/NodeRegistry.h
-    ${HEADER_DIR}/Registry/SystemRegistry.h
 
     ${HEADER_DIR}/UUID/UUID.h
 
@@ -50,15 +44,11 @@ set(HEADER_LIST
 )
 
 set(SOURCE_LIST
+    ${SOURCE_DIR}/Container/SystemRegistry.cpp
+
     ${SOURCE_DIR}/Object/Object.cpp
     ${SOURCE_DIR}/Object/Entity.cpp
-    ${SOURCE_DIR}/Object/Scene.cpp
     ${SOURCE_DIR}/Object/System.cpp
-
-    ${SOURCE_DIR}/Container/BaseContainer.cpp
-    ${SOURCE_DIR}/Container/EntityContainer.cpp
-
-    ${SOURCE_DIR}/Registry/SystemRegistry.cpp
 
     ${SOURCE_DIR}/UUID/UUID.cpp
 )
