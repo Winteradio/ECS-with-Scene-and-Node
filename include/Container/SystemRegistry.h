@@ -96,11 +96,13 @@ namespace ECS
 		const Memory::ObjectPtr<System> Get(const UUID& systemID) const;
 
 	public :
-		const GraphType BuildGraph() const;
+		const GraphType BuildGraph();
 
 	private:
 		PROPERTY(m_storage);
 		Storage m_storage;
+
+		GraphType m_graph;
 
 		TypeData m_typeData;
 	};

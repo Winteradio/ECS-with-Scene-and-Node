@@ -16,7 +16,7 @@ namespace ECS
 		, m_low(other.m_low)
 	{}
 
-	UUID::UUID(UUID&& other)
+	UUID::UUID(UUID&& other) noexcept
 		: m_high(other.m_high)
 		, m_low(other.m_low)
 	{
@@ -35,7 +35,7 @@ namespace ECS
 		return *this;
 	}
 
-	UUID& UUID::operator=(UUID&& other)
+	UUID& UUID::operator=(UUID&& other) noexcept
 	{
 		if (this != &other)
 		{
@@ -57,6 +57,12 @@ namespace ECS
 	bool UUID::operator!=(const UUID& other) const
 	{
 		return !(*this == other);
+	}
+
+	const UUID& UUID::Null()
+	{
+		static const UUID nullUUID;
+		return nullUUID;
 	}
 
 	const std::string UUID::ToString() const

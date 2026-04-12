@@ -16,6 +16,7 @@ namespace ECS
 
 		m_storage.Erase(systemID);
 		m_typeData.Erase(typeHash);
+		m_graph.Remove(systemID);
 	}
 
 	void SystemRegistry::Remove(const UUID& systemID)
@@ -32,6 +33,7 @@ namespace ECS
 
 		m_storage.Erase(itr);
 		m_typeData.Erase(typeHash);
+		m_graph.Remove(systemID);
 	}
 
 	Memory::ObjectPtr<System> SystemRegistry::Get(const Reflection::TypeInfo* typeInfo)
@@ -98,10 +100,8 @@ namespace ECS
 		return Memory::ObjectPtr<System>();
 	}
 
-	const SystemRegistry::GraphType SystemRegistry::BuildGraph() const
+	const SystemRegistry::GraphType SystemRegistry::BuildGraph()
 	{
-		GraphType graph;
-
 		for (const auto& systemPair : m_storage)
 		{
 			const auto& systemID = systemPair.first;
@@ -116,15 +116,15 @@ namespace ECS
 
 			for (const auto& dependID : dependData)
 			{
-				graph.Add(systemID, dependID);
+				m_graph.Add(systemID, dependID);
 			}
 		}
 
-		if (graph.IsUpdated())
+		if (m_graph.IsUpdated())
 		{
-			graph.Build();
+			m_graph.Build();
 		}
 
-		return graph;
+		return m_graph;
 	}
 }

@@ -11,6 +11,8 @@
 
 namespace ECS
 {
+	class SystemObserver;
+
 	class System : public Object
 	{
 		GENERATE(System);

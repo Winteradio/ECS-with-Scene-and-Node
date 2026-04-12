@@ -30,8 +30,8 @@ set(HEADER_LIST
     ${HEADER_DIR}/Object/System.h
 
     ${HEADER_DIR}/Container/Container.h
-    ${HEADER_DIR}/Container/DataRegistry.h
     ${HEADER_DIR}/Container/Registry.h
+    ${HEADER_DIR}/Container/Storage.h
     ${HEADER_DIR}/Container/SystemRegistry.h
 
     ${HEADER_DIR}/Graph/Graph.h

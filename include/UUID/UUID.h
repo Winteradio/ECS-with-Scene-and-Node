@@ -13,10 +13,10 @@ namespace ECS
 	public:
 		UUID();
 		UUID(const UUID& other);
-		UUID(UUID&& other);
+		UUID(UUID&& other) noexcept;
 
 		UUID& operator=(const UUID& other);
-		UUID& operator=(UUID&& other);
+		UUID& operator=(UUID&& other) noexcept;
 
 		bool operator==(const UUID& other) const;
 		bool operator!=(const UUID& other) const;
@@ -24,6 +24,8 @@ namespace ECS
 		const std::string ToString() const;
 
 		bool IsValid() const;
+
+		static const UUID& Null();
 
 	private:
 		friend class std::hash<ECS::UUID>;

@@ -22,16 +22,16 @@ namespace ECS
 		}
 	};
 
-	template<typename T, typename StringMaker = DefaultMaker<T>>
+	template<typename T, typename StringMaker = DefaultMaker<T>, typename HashMaker = wtr::DefaultHasher<T>>
 	class Graph
 	{
 	public :
 		using SortedNode = wtr::DynamicArray<T>;
 
-		using NodeData = wtr::HashSet<T>;
-		using NodeIndegree = wtr::HashMap<T, uint32_t>;
-		using NodeOrder = wtr::HashMap<T, size_t>;
-		using NodeEdge = wtr::HashMap<T, NodeData>;
+		using NodeData = wtr::HashSet<T, HashMaker>;
+		using NodeIndegree = wtr::HashMap<T, uint32_t, HashMaker>;
+		using NodeOrder = wtr::HashMap<T, size_t, HashMaker>;
+		using NodeEdge = wtr::HashMap<T, NodeData, HashMaker>;
 		using NodeQueue = std::queue<T>;
 
 		Graph()
@@ -80,7 +80,9 @@ namespace ECS
 
 		void Remove(const T& data)
 		{
-			m_sorted.Erase(data);
+			auto itr = m_sorted.Find(data);
+			m_sorted.Erase(itr);
+
 			m_order.Erase(data);
 			m_indegree.Erase(data);
 			m_edge.Erase(data);
