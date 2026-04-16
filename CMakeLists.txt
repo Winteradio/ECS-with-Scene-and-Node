@@ -30,9 +30,8 @@ set(HEADER_LIST
     ${HEADER_DIR}/Object/System.h
 
     ${HEADER_DIR}/Container/Container.h
-    ${HEADER_DIR}/Container/DataRegistry.h
     ${HEADER_DIR}/Container/Registry.h
-    ${HEADER_DIR}/Container/SystemRegistry.h
+    ${HEADER_DIR}/Container/Storage.h
 
     ${HEADER_DIR}/Graph/Graph.h
 
@@ -44,11 +43,10 @@ set(HEADER_LIST
 )
 
 set(SOURCE_LIST
-    ${SOURCE_DIR}/Container/SystemRegistry.cpp
-
     ${SOURCE_DIR}/Object/Object.cpp
     ${SOURCE_DIR}/Object/Entity.cpp
-    ${SOURCE_DIR}/Object/System.cpp
+
+    ${SOURCE_DIR}/Graph/Graph.cpp
 
     ${SOURCE_DIR}/UUID/UUID.cpp
 )

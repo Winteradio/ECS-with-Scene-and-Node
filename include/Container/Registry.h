@@ -51,7 +51,7 @@ namespace ECS
 
 	public :
 		template<typename T, typename... Args>
-		Memory::ObjectPtr<T> Create(Args&&... args)
+		Memory::ObjectPtr<T> Create(const UUID& id, Args&&... args)
 		{
 			Memory::ObjectPtr<ContainerType<T>> container = GetContainer<T>();
 			if (!container)
@@ -64,7 +64,7 @@ namespace ECS
 				m_containerData[typeHash] = container;
 			}
 
-			return container->Emplace(std::forward<Args>(args)...);
+			return container->Emplace(id, std::forward<Args>(args)...);
 		}
 
 		template<typename T>
