@@ -1,162 +1,281 @@
 #ifndef __ECS_GRAPH_H__
 #define __ECS_GRAPH_H__
 
+#include <Memory/include/Pointer/RefPtr.h>
+
 #include <Container/include/DynamicArray.h>
 #include <Container/include/HashSet.h>
 #include <Container/include/HashMap.h>
 
 #include <Log/include/Log.h>
-
-#include <queue>
-#include <initializer_list>
-#include <algorithm>
+#include <Object/Object.h>
 
 namespace ECS
 {
-	template<typename T>
-	struct DefaultMaker
-	{
-		std::string operator()(const T& data) const
-		{
-			return std::string();
-		}
-	};
-
-	template<typename T, typename StringMaker = DefaultMaker<T>, typename HashMaker = wtr::DefaultHasher<T>>
-	class Graph
+	class GraphObserver
 	{
 	public :
-		using SortedNode = wtr::DynamicArray<T>;
+		GraphObserver() = default;
+		virtual ~GraphObserver() = default;
 
-		using NodeData = wtr::HashSet<T, HashMaker>;
-		using NodeIndegree = wtr::HashMap<T, uint32_t, HashMaker>;
-		using NodeOrder = wtr::HashMap<T, size_t, HashMaker>;
-		using NodeEdge = wtr::HashMap<T, NodeData, HashMaker>;
-		using NodeQueue = std::queue<T>;
+	public :
+		void onInit();
+		void onUpdate();
+		const bool IsUpdated() const;
 
+	private :
+		bool m_updated;
+	};
+
+	template<typename T>
+	class GraphNode
+	{
+	public:
+		static_assert(Reflection::Utils::IsBase<ECS::Object, T>::value, "The value type must be derived from the graph's base type.");
+
+		using DependencyData = wtr::HashSet<ECS::UUID>;
+		using DataType = Memory::RefPtr<T>;
+
+		DataType data;
+
+	public :
+		GraphNode()
+			: data()
+			, m_observer(nullptr)
+		{}
+
+		~GraphNode() = default;
+
+	public:
+		void SetObserver(GraphObserver* observer)
+		{
+			m_observer = observer;
+		}
+
+		void SetData(const DataType refData)
+		{
+			data = refData;
+
+			if (m_observer)
+			{
+				m_observer->onUpdate();
+			}
+		}
+
+		void SetDependency(const GraphNode& other)
+		{
+			if (!other.data)
+			{
+				return;
+			}
+
+			m_dependData.Insert(other.data->GetID());
+
+			if (m_observer)
+			{
+				m_observer->onUpdate();
+			}
+		}
+
+		void RemoveDependency(const GraphNode& other)
+		{
+			if (!other.data)
+			{
+				return;
+			}
+
+			m_dependData.Erase(other.data->GetID());
+
+			if (m_observer)
+			{
+				m_observer->onUpdate();
+			}
+		}
+
+		const DependencyData& GetDependData() const
+		{
+			return m_dependData;
+		}
+
+	private:
+		GraphObserver* m_observer;
+		DependencyData m_dependData;
+	};
+
+	template<typename Base, typename BaseNode = GraphNode<Base>>
+	class Graph : public GraphObserver
+	{
+	public :
+		using NodeData = wtr::HashMap<UUID, BaseNode>;
+		using SortedNode = wtr::DynamicArray<typename BaseNode::DataType>;
+
+	public :
+
+	public :
 		Graph()
-			: m_edge()
-			, m_order()
-			, m_indegree()
-			, m_sorted()
-			, m_updated(false)
+			: GraphObserver()
+			, m_nodeData()
+			, m_sortedNode()
 		{}
 
 		~Graph() = default;
 
 	public:
-		void Add(const T& data)
+		template<typename T, typename... Args>
+		Memory::RefPtr<T> Create(Args&&... args)
 		{
-			auto [itr, inserted] = m_edge.TryEmplace(data);
-			if (inserted)
+			static_assert(Reflection::Utils::IsBase<Base, T>::value, "The value type must be derived from the graph's base type.");
+			
+			Memory::RefPtr<T> data = Memory::MakeRef<T>(std::forward<Args>(args)...);
+			if (!data)
 			{
-				m_indegree[data] = 0;
-
-				m_updated = true;
+				LOGERROR() << "[Graph] Failed to create the node data";
+				return {};
 			}
+
+			GraphNode<Base> node;
+			node.SetObserver(this);
+			node.SetData(data);
+
+			m_nodeData[data->GetID()] = node;
+
+			return data;
 		}
 
-		void Add(const T& from, const std::initializer_list<T>& list)
+		template<typename T = Base>
+		Memory::RefPtr<T> Get(const ECS::UUID& id)
 		{
-			for (const auto& to : list)
+			auto itr = m_nodeData.Find(id);
+			if (itr == m_nodeData.End())
 			{
-				Add(from, to);
+				return {};
 			}
+
+			auto& node = itr->second;
+
+			return node.data;
 		}
 
-		void Add(const T& from, const T& to)
+		template<typename T = Base>
+		Memory::RefPtr<const T> Get(const ECS::UUID& id) const
 		{
-			m_edge[from];
-
-			auto [itr, inserted] = m_edge[to].Insert(from);
-			if (inserted)
+			auto itr = m_nodeData.Find(id);
+			if (itr == m_nodeData.End())
 			{
-				m_indegree[from]++;
-				m_indegree[to];
-
-				m_updated = true;
+				return {};
 			}
+
+			const auto& node = itr->second;
+
+			return node.data;
 		}
 
-		void Remove(const T& data)
+		void Remove(const ECS::UUID& id)
 		{
-			auto itr = m_sorted.Find(data);
-			m_sorted.Erase(itr);
-
-			m_order.Erase(data);
-			m_indegree.Erase(data);
-			m_edge.Erase(data);
-
-			for (auto& edgePair : m_edge)
+			auto itr = m_nodeData.Find(id);
+			if (itr == m_nodeData.End())
 			{
-				auto& nodeData = edgePair.second;
-
-				nodeData.Erase(data);
+				return;
 			}
+
+			for (auto& [id, node] : m_nodeData)
+			{
+				node.RemoveDependency(itr->second);
+			}
+
+			m_nodeData.Erase(itr);
 		}
 
-		bool Build()
+		void Clear()
 		{
-			if (!m_updated)
+			m_nodeData.Clear();
+			m_sortedNode.Clear();
+			onInit();
+		}
+
+		const SortedNode& GetSorted()
+		{
+			if (IsUpdated())
 			{
-				return true;
-			}
-
-			wtr::DynamicArray<T> sortedList;
-			sortedList.Reserve(m_indegree.Size());
-
-			NodeIndegree indegree = m_indegree;
-			NodeQueue queue;
-
-			for (const auto& pair : indegree)
-			{
-				const auto& node = pair.first;
-				const auto& count = pair.second;
-
-				if (count == 0)
+				if (!Build())
 				{
-					queue.push(node);
+					m_sortedNode.Clear();
 				}
 			}
 
-			while (!queue.empty())
+			onInit();
+
+			return m_sortedNode;
+		}
+
+	private :
+		bool Build()
+		{			
+			using IDIndgree = wtr::HashMap<UUID, size_t>;
+			using IDData = wtr::HashSet<UUID>;
+			using IDEdge = wtr::HashMap<UUID, IDData>;
+			using IDQueue = std::queue<UUID>;
+			using SortedID = wtr::DynamicArray<UUID>;
+
+			SortedID sortedID;
+			IDIndgree idIndegree;
+			IDQueue idQueue;
+			IDEdge idEdge;
+
+			for (const auto& [id, node] : m_nodeData)
 			{
-				T node = queue.front();
-				queue.pop();
+				const auto& dependData = node.GetDependData();
+				idIndegree[id] = dependData.Size();
 
-				const auto& dependData = m_edge[node];
-				for (const auto& depend : dependData)
+				for (const auto& dependID : dependData)
 				{
-					indegree[depend]--;
+					idEdge[dependID].Insert(id);
+				}
+			}
 
-					if (indegree[depend] == 0)
+			for (const auto& [id, indegree] : idIndegree)
+			{
+				if (indegree == 0)
+				{
+					idQueue.push(id);
+				}
+			}
+
+			while (!idQueue.empty())
+			{
+				UUID nodeID = idQueue.front();
+				idQueue.pop();
+
+				const auto& dependData = idEdge[nodeID];
+				for (const auto& dependID : dependData)
+				{
+					idIndegree[dependID]--;
+
+					if (idIndegree[dependID] == 0)
 					{
-						queue.push(depend);
+						idQueue.push(dependID);
 					}
 				}
 
-				sortedList.PushBack(node);
+				sortedID.PushBack(nodeID);
 			}
 
-			if (sortedList.Size() != m_indegree.Size())
+			if (sortedID.Size() != idIndegree.Size())
 			{
 				LOGINFO() << "[GRAPH] Failed to build, cause the circular loop occured";
-				
-				for (const auto& nodePair : m_edge)
-				{
-					const auto& node = nodePair.first;
-					const auto& dependData = nodePair.second;
 
-					auto itr = sortedList.Find(node);
-					if (itr != sortedList.End())
+				for (const auto& [id, node] : m_nodeData)
+				{
+					auto itr = sortedID.Find(id);
+					if (itr != sortedID.End())
 					{
 						continue;
 					}
-					
-					for (const auto& dependNode : dependData)
+				
+					const auto& dependData = node.GetDependData();
+					for (const auto& dependID : dependData)
 					{
-						LOGINFO() << "[GRAPH] Expected the circular : "
-							<< StringMaker()(dependNode) << " -> " << StringMaker()(node);
+						LOGINFO() << "[GRAPH] Expected the circular : " << dependID.ToString() << " -> " << id.ToString();
 					}
 				}
 
@@ -164,56 +283,28 @@ namespace ECS
 			}
 			else
 			{
-				m_sorted = std::move(sortedList);
+				m_sortedNode.Clear();
 
-				const size_t endIndex = m_sorted.Size();
-				for (size_t index = 0; index < endIndex; index++)
+				for (const auto& id : sortedID)
 				{
-					const auto& node = m_sorted[index];
-					m_order[node] = index;
-				}
+					auto itr = m_nodeData.Find(id);
+					if (itr == m_nodeData.End())
+					{
+						continue;
+					}
 
-				m_updated = false;
+					auto& node = itr->second;
+
+					m_sortedNode.PushBack(node.data);
+				}
 
 				return true;
 			}
 		}
 
-		bool IsUpdated() const
-		{
-			return m_updated;
-		}
-
-		const SortedNode GetPartialSorted(const wtr::DynamicArray<T>& otherList) const
-		{
-			wtr::DynamicArray<T> partial = otherList;
-
-			auto sortFunction = [order = m_order](const T& lhs, const T& rhs)
-			{
-				const size_t lhsOrder = order[lhs];
-				const size_t rhsOrder = order[rhs];
-
-				return lhsOrder < rhsOrder;
-			};
-
-			partial.Sort(partial.Begin(), partial.End(), sortFunction);
-
-			return partial;
-		}
-
-		const SortedNode& GetSorted() const
-		{
-			return m_sorted;
-		}
-
 	private :
-		NodeEdge m_edge;
-		NodeOrder m_order;
-		NodeIndegree m_indegree;
-
-		SortedNode m_sorted;
-
-		bool m_updated;
+		NodeData m_nodeData;
+		SortedNode m_sortedNode;
 	};
 };
 

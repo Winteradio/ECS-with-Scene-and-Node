@@ -89,6 +89,11 @@ namespace ECS
 			return m_storage.Get(uuid);
 		}
 
+		StorageType& GetStorage()
+		{
+			return m_storage;
+		}
+
 	public :
 		template<typename... Args>
 		Memory::ObjectPtr<T> Emplace(const UUID& id, Args&&... args)
