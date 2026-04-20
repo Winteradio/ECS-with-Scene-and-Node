@@ -12,6 +12,7 @@ namespace ECS
 		using Duration = std::chrono::milliseconds;
 
 		Clock::time_point start = Clock::now();
+		Clock::time_point now = Clock::now();
 		Duration total = Duration::zero();
 		Duration delta = Duration::zero();
 		double scale = 1.0;
@@ -19,11 +20,12 @@ namespace ECS
 
 		void Tick()
 		{
-			auto now = Clock::now();
-			auto duration = std::chrono::duration_cast<Duration>(now - start);
+			auto current = Clock::now();
+			auto duration = std::chrono::duration_cast<Duration>(current - now);
 			delta = duration;
 			total += duration;
 			frame++;
+			now = current;
 		}
 
 		static const double ToSecond(const Duration& duration)
